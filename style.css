@@ -257,3 +257,27 @@ legend { font-family: var(--serif); font-size: 1.3rem; padding-right: .5rem; }
 }
 @media (prefers-reduced-motion: reduce) { .panel { transition: none; } }
 .bestaetigt a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 .25rem; }
+
+/* Echte Hoffotos (von leimbachhof.de, Nachtrag 07.10.) */
+.bild { margin: 0; }
+.bild img { display: block; width: 100%; height: auto; border: 1px solid var(--schwarz); }
+.bild figcaption { font-size: .88rem; color: var(--leise); margin-top: .4rem; }
+.artikel-bild { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border: 1px solid var(--schwarz); }
+.zutaten { font-size: .9rem; }
+.abstand { margin-top: 3.5rem; }
+.neues { margin-top: 3.5rem; border-top: 1px solid var(--schwarz); padding-top: 1.5rem; }
+.chronik { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--schwarz); }
+.chronik li { padding: .7rem 0; border-bottom: 1px solid var(--linie); }
+.chronik b { display: inline-block; min-width: 3.5em; font-family: var(--serif); font-weight: 400; font-size: 1.1rem; }
+.stellplaetze { list-style: none; padding: 0; margin: 0 0 1rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 2.5rem; border-top: 1px solid var(--schwarz); }
+.stellplaetze li { display: grid; grid-template-columns: 7.5em 1fr; gap: 1rem; padding: .7rem 0; border-bottom: 1px solid var(--linie); }
+.sp-zeit { font-variant-numeric: tabular-nums; font-weight: 600; }
+@media (max-width: 899px) {
+  .artikel-bild { aspect-ratio: 3 / 2; }
+  .stellplaetze { grid-template-columns: 1fr; }
+  .stellplaetze li { grid-template-columns: 6.5em 1fr; }
+  .abstand, .neues { margin-top: 2.5rem; }
+}
+.foto.breit::before { content: "Platzhalter · "; }
+#kontakt a { display: inline-flex; align-items: center; min-height: 44px; }
+@media (max-width: 899px) { .stellplaetze li { grid-template-columns: 8.4em 1fr; gap: .75rem; } .sp-zeit { white-space: nowrap; } }

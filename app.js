@@ -52,18 +52,44 @@ const SCHWEINE = [
       schinken: 2, 'haxe-vorne': 0, 'haxe-hinten': 0.5, wurst: 1 } },
 ];
 
-// ---------- Daten: Dauerware (echte Hofpreise, Stand leimbachhof.de 09.09.2026) ----------
+// ---------- Daten: Dauerware (echte Hofpreise und Zutaten, Stand leimbachhof.de 07.10.2026) ----------
+const VOM_SCHWARZERLE = 'vom Steigerwälder Schwarzerle Freilandschwein';
 const DAUERWARE = [
-  { id: 'd-schinken', name: 'Geräucherter Schinken', preise: { 'am Stück': 34, 'geschnitten': 39 },
-    min: 0.1, max: 3, schritt: 0.1, text: 'Vom Schwarzerle, über Buchenholz geräuchert.' },
-  { id: 'd-bauch', name: 'Geräucherter Bauch', preise: { 'am Stück': 29, 'geschnitten': 34 },
-    min: 0.1, max: 3, schritt: 0.1, text: 'Kräftig, mit schöner Fettschicht. Für Brotzeit und zum Kochen.' },
-  { id: 'd-speck', name: 'Geräucherter Rückenspeck', preise: { 'am Stück': 24, 'geschnitten': 29 },
-    min: 0.1, max: 3, schritt: 0.1, text: 'Fester weißer Speck – das, wofür die Rasse bekannt ist.' },
-  { id: 'd-bratwurst', name: 'Geräucherte Bratwurst', preise: { 'je Paar': 27 },
-    min: 0.2, max: 3, schritt: 0.2, text: 'Ein Paar wiegt etwa 0,2 kg.' },
-  { id: 'd-salami', name: 'Salami (Angus und Schwarzerle)', preise: { 'am Stück': 33, 'geschnitten': 38 },
-    min: 0.1, max: 3, schritt: 0.1, text: 'Enthält Senf. Mit Nitritpökelsalz.' },
+  { id: 'd-schinken', name: 'Geräucherter Schinken', bild: 'schinken.jpg', preise: { 'am Stück': 34, 'geschnitten': 39 },
+    min: 0.1, max: 3, schritt: 0.1, text: VOM_SCHWARZERLE,
+    zutaten: 'Schweinefleisch aus der Keule, Steinsalz, Zucker, Gewürze, Buchenrauch' },
+  { id: 'd-bauch', name: 'Geräucherter Bauch', bild: 'bauch.jpg', preise: { 'am Stück': 29, 'geschnitten': 34 },
+    min: 0.1, max: 3, schritt: 0.1, text: VOM_SCHWARZERLE,
+    zutaten: 'Schweinefleisch vom Bauch, Steinsalz, Zucker, Gewürze, Buchenrauch' },
+  { id: 'd-speck', name: 'Geräucherter Rückenspeck', bild: 'speck.jpg', preise: { 'am Stück': 24, 'geschnitten': 29 },
+    min: 0.1, max: 3, schritt: 0.1, text: VOM_SCHWARZERLE,
+    zutaten: 'Schweinespeck, Steinsalz, Zucker, Gewürze, Buchenrauch' },
+  { id: 'd-bratwurst', name: 'Geräucherte Bratwurst', bild: 'bratwurst.jpg', preise: { 'am Stück': 27 },
+    min: 0.2, max: 3, schritt: 0.2, text: VOM_SCHWARZERLE + ' · ein Paar wiegt ca. 0,2 kg',
+    zutaten: 'Schweinefleisch, Steinsalz, Zucker, Gewürze, Buchenrauch' },
+  { id: 'd-salami', name: 'Salami', bild: 'salami.jpg', preise: { 'am Stück': 33, 'geschnitten': 38 },
+    min: 0.1, max: 3, schritt: 0.1, text: 'vom Angus-Weiderind und Steigerwälder Schwarzerle Freilandschwein',
+    zutaten: 'Rindfleisch, Schweinefleisch, Schweinespeck, Nitritpökelsalz, Zucker, Gewürze, Buchenrauch. Allergen: Senfkörner. Konservierungsstoff: Natriumnitrit' },
+];
+// Geschenkpakete: fester Preis inkl. Versand und Geschenkverpackung (leimbachhof.de)
+const PAKETE = [
+  { id: 'p-gross', name: 'Geschenkpaket „groß“', bild: 'paket-gross.jpg', preis: 39.9,
+    inhalt: 'Zwei Rohwürste vom Schwarzerle (zusammen ca. 250 g), Vesper-Gemüse aus der Region (170 g), Tafelmeerrettich von Marga’s Kren (200 g), Feingebäck (ca. 80 g), Nudeln (250 g), Grischperli Kartoffelchips (120 g)' },
+  { id: 'p-klein', name: 'Geschenkpaket „klein“', bild: 'paket-klein.jpg', preis: 19.9,
+    inhalt: 'Zwei Rohwürste vom Schwarzerle (zusammen ca. 150 g), Nudeln (250 g), Feingebäck (ca. 80 g)' },
+];
+const artikel = id => DAUERWARE.find(a => a.id === id) || PAKETE.find(a => a.id === id);
+
+// ---------- Daten: Verkaufswagen (echte Stellplätze, leimbachhof.de) ----------
+const STELLPLAETZE = [
+  { tag: 'Do', zeit: '11:00–11:15', platz: 'Rieterstraße 97 (Rangau Apotheke)', ort: '90530 Kleinschwarzenlohe' },
+  { tag: 'Do', zeit: '14:00–14:30', platz: 'Am alten Bahnhof 13–17 (Seniorenwohnheim)', ort: '90530 Wendelstein' },
+  { tag: 'Fr', zeit: '9:35–9:45', platz: 'Karl-Rorich-Straße 12', ort: '90469 Gartenstadt' },
+  { tag: 'Fr', zeit: '9:50–10:10', platz: 'Pachelbelstraße 118', ort: '90469 Gartenstadt' },
+  { tag: 'Fr', zeit: '10:15–10:35', platz: 'Johann-Krieger-Straße 17', ort: '90469 Gartenstadt' },
+  { tag: 'Fr', zeit: '10:40–11:00', platz: 'Worzeldorfer Straße 52', ort: '90469 Gartenstadt' },
+  { tag: 'Fr', zeit: '11:05–11:30', platz: 'Leerstetter Straße 4 (Kirche St. Rupert)', ort: '90469 Gartenstadt' },
+  { tag: 'Fr', zeit: '11:45–12:00', platz: 'Watzmannstraße 20/22 (großer Parkplatz)', ort: '90471 Langwasser' },
 ];
 
 // ---------- Preisregel (Dynamic Pricing) ----------
@@ -114,8 +140,10 @@ function korbHinzu(posten) {
 function summen() {
   const frisch = korb.filter(p => p.art === 'frisch').reduce((s, p) => s + p.kg * p.preisKg, 0);
   const dauer = korb.filter(p => p.art === 'dauer').reduce((s, p) => s + p.kg * p.preisKg, 0);
-  // Versandregel: nur Dauerware wird verschickt, frei ab 50 €, sonst 10 €
-  const versand = dauer === 0 ? 0 : (dauer >= 50 ? 0 : 10);
+  // Versandregel: frei ab 50 € Warenwert, sonst 10 €. Geschenkpakete enthalten
+  // den Versand schon – liegen nur Pakete im Korb, kostet der Versand nichts.
+  const nurPakete = korb.filter(p => p.art === 'dauer').every(p => p.paket);
+  const versand = dauer === 0 || nurPakete ? 0 : (dauer >= 50 ? 0 : 10);
   return { frisch: rund2(frisch), dauer: rund2(dauer), versand, gesamt: rund2(frisch + dauer + versand) };
 }
 
@@ -231,12 +259,17 @@ ANSICHTEN.start = () => {
   return `
 <section class="start-oben">
   <div>
-    <h1>Schwarze Schweine aus dem Steigerwald</h1>
-    <p>Wir halten Cornwallschweine im Freiland. Jedes Schwein verkaufen wir ganz –
-    Sie suchen sich vorher Ihr Stück aus.</p>
+    <h1>Freilandschweine aus dem südlichen Steigerwald</h1>
+    <p>Der Laimbachhof liegt in Oberlaimbach bei Scheinfeld, im Schwarzenberger Land.
+    Hier halten wir die <b>Steigerwälder Schwarzerle</b>: Cornwallschweine, eine vom
+    Aussterben bedrohte Rasse, das ganze Jahr draußen.</p>
+    <p>Jedes Schwein verkaufen wir ganz – Sie suchen sich vorher Ihr Stück aus.</p>
     <a class="knopf" href="#/schwein">Zum nächsten Schwein</a>
   </div>
-  <div class="foto">unsere Schweine im Auslauf</div>
+  <figure class="bild">
+    <img src="bilder/weide.jpg" width="800" height="600" alt="Schwarze Cornwallschweine grasen auf der Weide vor der Scheune">
+    <figcaption>Unsere Schwarzerle auf der Weide</figcaption>
+  </figure>
 </section>
 <section class="drei">
   <div>
@@ -247,16 +280,21 @@ ANSICHTEN.start = () => {
   </div>
   <div>
     <h3>Dauerware im Versand</h3>
-    <p>Schinken, Bauch, Speck, Bratwurst und Salami. Wir verschicken montags,
-    ab 50 € versandkostenfrei.</p>
+    <p>Schinken, Bauch, Speck, Bratwurst und Salami, über Buchenholz geräuchert.
+    Wir verschicken montags, ab 50 € versandkostenfrei.</p>
     <a class="mehr" href="#/dauerware">Zur Dauerware</a>
   </div>
   <div>
-    <h3>Hofladen</h3>
-    <p>Freitags von 9 bis 18 Uhr. Dazu Rind, Lamm, Hähnchen und Fisch von
-    Nachbarn aus der Region.</p>
-    <a class="mehr" href="#/wo">Wo Sie uns finden</a>
+    <h3>Hofladen und Verkaufswagen</h3>
+    <p>Hofladen jeden Freitag 9–18 Uhr. Der Verkaufswagen hält donnerstags und freitags
+    in Nürnberg Süd, alle 14 Tage samstags in Scheinfeld.</p>
+    <a class="mehr" href="#/wo">Zeiten und Stellplätze</a>
   </div>
+</section>
+<section class="neues">
+  <h2>Neuigkeiten</h2>
+  <p>Was auf dem Hof los ist, zeigen wir auf Facebook. Im echten Shop erscheinen die Beiträge hier automatisch.</p>
+  <a class="mehr" href="https://www.facebook.com/pages/Laimbachhof/263250313705911" rel="noopener">Laimbachhof auf Facebook</a>
 </section>`;
 };
 
@@ -343,9 +381,10 @@ ANSICHTEN.schwein = () => {
 
 ANSICHTEN.dauerware = () => `
 <h1>Dauerware</h1>
-<p>Geräuchert und luftgetrocknet, alles vom Schwarzerle. Das verschicken wir –
-Frischfleisch gibt es nur zum Abholen.</p>
-<div class="versandregel"><p><b>Versand immer montags.</b> Ab 50 € Warenwert versandkostenfrei, sonst 10 € je Paket.</p></div>
+<p>Unsere Schinkenprodukte salzen wir nach traditionellem Rezept nur mit reinem Steinsalz und
+Gewürzen trocken, räuchern sie schonend über Buchenholz und lassen sie langsam reifen.
+Jede Portion ist fertig vakuumiert. Frischfleisch gibt es nur zum Abholen.</p>
+<div class="versandregel"><p><b>Versand immer montags</b>, deutschlandweit. Ab 50 € Warenwert versandkostenfrei, sonst 10 € je Paket.</p></div>
 <ul class="artikel-liste">
 ${DAUERWARE.map(a => {
   const varianten = Object.keys(a.preise);
@@ -355,8 +394,9 @@ ${DAUERWARE.map(a => {
     optionen.push(`<option value="${m}">${kg(m)}${paar}</option>`);
   }
   return `<li class="artikel" data-artikel="${a.id}">
-    <div class="foto">${a.name}</div>
-    <div><h3>${a.name}</h3><p>${a.text}</p>
+    <img class="artikel-bild" src="bilder/${a.bild}" alt="${a.name} vom Laimbachhof">
+    <div><h3>${a.name}</h3><p class="leise">${a.text}</p>
+      <p class="zutaten"><b>Zutaten:</b> ${a.zutaten}</p>
       <p class="leise">${varianten.map(v => `${v}: ${euro(a.preise[v])}/kg`).join(' · ')}</p></div>
     <div>
       ${varianten.length > 1 ? `<div class="wahl" role="radiogroup" aria-label="Variante">
@@ -370,60 +410,153 @@ ${DAUERWARE.map(a => {
     </div>
   </li>`;
 }).join('')}
+</ul>
+<h2 class="abstand">Geschenkpakete</h2>
+<p>Inklusive Versand und Geschenkverpackung. Bei Abholung im Hofladen gibt es einen regionalen Imkerhonig dazu.</p>
+<ul class="artikel-liste">
+${PAKETE.map(a => `<li class="artikel" data-artikel="${a.id}">
+    <img class="artikel-bild" src="bilder/${a.bild}" alt="${a.name}: Holzkiste mit Wurst und Produkten aus der Region">
+    <div><h3>${a.name}</h3><p>${a.inhalt}</p></div>
+    <div>
+      <div class="preiszeile"><span>inkl. Versand</span><span class="gross">${euro(a.preis)}</span></div>
+      <button type="button" class="knopf" data-aktion="paket-in-korb" data-id="${a.id}" style="width:100%">In den Korb</button>
+      <p class="bestaetigt" role="status" data-meldung></p>
+    </div>
+  </li>`).join('')}
 </ul>`;
 
 ANSICHTEN.hof = () => `
+<h1>Der Hof und die Rasse</h1>
 <div class="zwei">
   <div>
-    <h1>Der Hof und die Rasse</h1>
-    <p>Der Laimbachhof liegt im südlichen Steigerwald, im Schwarzenberger Land.
-    Unsere Schweine leben draußen, auf Wiese und im Wald, das ganze Jahr.</p>
-    <p>Wir halten Cornwallschweine, auf Englisch Large Black. Die Rasse ist selten
-    geworden und gilt als bedroht. Sie wächst langsam, dafür ist das Fleisch kräftig
-    und schön marmoriert. Wir nennen sie: Steigerwälder Schwarzerle.</p>
+    <p>Der Laimbachhof liegt mitten im südlichen Steigerwald, im Ortsteil Oberlaimbach von Scheinfeld.
+    Johannes Buchner, Landwirtschaftsmeister, hat den Hof 2015 von seinen Eltern übernommen.</p>
+    <p>Mit der artgerechten Haltung einer vom Aussterben bedrohten Rasse wollen wir die Natur nutzen,
+    schützen und bewahren. Dafür haben wir die Marke <b>„Steigerwälder Schwarzerle“</b> gegründet.</p>
+  </div>
+  <figure class="bild"><img src="bilder/weide2.jpg" width="800" height="600" alt="Zwei schwarze Schweine im hohen Gras am Weidezaun">
+    <figcaption>Auf der Koppel</figcaption></figure>
+</div>
+
+<h2 class="abstand">Das Cornwallschwein</h2>
+<div class="zwei">
+  <div>
+    <p>Grundlage der Schwarzerle ist das „Deutsche Cornwallschwein“, englisch Large Black.
+    1896 kamen die ersten Tiere aus Cornwall nach Deutschland und waren vor allem in Bayern verbreitet.
+    In den 60er-Jahren wurde die Zucht hier aufgegeben. Seit 2009 leben wieder Cornwall-Sauen
+    auf dem Laimbachhof – wir haben sie aus Schottland geholt.</p>
     <ul class="fakten">
-      <li><b>Rasse</b> Cornwallschwein / Large Black</li>
-      <li><b>Erkennt man an</b> ganz schwarz, große Schlappohren über den Augen</li>
-      <li><b>Haltung</b> Freiland, ganzjährig draußen</li>
-      <li><b>Verkauf</b> je Schwein, Teilstück für Teilstück</li>
+      <li><b>Aussehen</b> bläulich-schwarze Haut und Borsten, lange Schlappohren, langer gerader Rücken</li>
+      <li><b>Wesen</b> ruhig, gesund und widerstandsfähig</li>
+      <li><b>Draußen</b> durch die dunkle Haut unempfindlich gegen Sonnenbrand</li>
+      <li><b>Fleisch</b> gut durchwachsen, kerniger Speck – für Braten und Dauerwurst</li>
     </ul>
   </div>
-  <div>
-    <div class="foto">Schwarzerle mit Schlappohren</div>
-    <p class="leise" style="margin-top:.75rem">Platzhalter. Im echten Shop stehen hier Fotos vom Hof, keine Bilder aus dem Netz.</p>
-  </div>
+  <figure class="bild"><img src="bilder/ankunft.jpg" width="800" height="531" alt="Vier schwarze Cornwall-Sauen liegen im Stroh">
+    <figcaption>Februar 2009: Molly, Polly, Lucky und Babe sind aus Schottland angekommen</figcaption></figure>
 </div>
-<section style="margin-top:3rem">
+
+<h2 class="abstand">So leben unsere Schweine</h2>
+<div class="zwei">
+  <ul class="fakten">
+    <li><b>Geburt</b> auf Stroh in Bewegungsbuchten, die Sau kann sich frei drehen</li>
+    <li><b>Ferkel</b> nach dem Absetzen bald auf die Weide – das stärkt das Immunsystem</li>
+    <li><b>Ganzjährig draußen</b> auf Äckern, Wiesen und im Wald, im Wechsel der Weiden</li>
+    <li><b>Ringelschwanz</b> bleibt dran, weil die Tiere ohne Stress leben</li>
+    <li><b>Futter</b> selbst gemischt, vor allem aus eigenem Anbau, gentechnikfrei; dazu Kräuter, Wurzeln, Nüsse</li>
+    <li><b>Schlachtung</b> in der hofnahen Metzgerei</li>
+  </ul>
+  <figure class="bild"><img src="bilder/sau-ferkel.jpg" width="800" height="600" alt="Sau mit Ferkeln auf der Wiese">
+    <figcaption>Sau mit Ferkeln auf der Wiese</figcaption></figure>
+</div>
+
+<section class="abstand">
   <h2>Live aus dem Auslauf</h2>
   <div class="foto breit">hier läuft später der Livestream</div>
-</section>`;
+</section>
+
+<h2 class="abstand">Wie es dazu kam</h2>
+<div class="zwei">
+  <ol class="chronik">
+    <li><b>1999</b> Mit 14 bekommt Johannes seine erste Sau, Theo – im Pferch im Garten.</li>
+    <li><b>2004</b> 15 Monate in Südbrasilien. Dort packt ihn das „Freilandfieber“.</li>
+    <li><b>2006</b> Semesterarbeit an der Meisterschule über Freilandschweine, mit eigenem Versuch.</li>
+    <li><b>2008</b> Praktikum auf Dunlossit Estate, Insel Islay in Schottland: rund 250 Schweine alter Rassen im Freien. Meisterpreis der Bayerischen Staatsregierung.</li>
+    <li><b>2009</b> Vier reinrassige Cornwall-Sauen kommen nach Franken. Im Juli die ersten Ferkel, „schwarz mit roten Streifen, wie kleine Tiger“.</li>
+    <li><b>2011</b> Das Steigerwälder Schwarzerle wird als „Unser Original“ der Metropolregion Nürnberg ausgezeichnet. Das SWR-Fernsehen berichtet.</li>
+    <li><b>2015</b> Hofübernahme. Mehr Fläche, damit die Weiden sich erholen können.</li>
+  </ol>
+  <figure class="bild"><img src="bilder/schnee.jpg" width="500" height="375" alt="Schwarze Schweine im Schnee vor ihrer Strohhütte">
+    <figcaption>Auch im ersten Schnee draußen</figcaption></figure>
+</div>
+
+<h2 class="abstand">Was wir wollen</h2>
+<p>Wir wollen den Absatz von Lebensmitteln aus dem südlichen Steigerwald verbessern und so die
+Landwirtschaft hier stärken – besonders kleine Höfe. Im Hofladen verkaufen Erzeuger aus der Region ihre Waren mit.
+Wer dort ins Regal will: im Steigerwald erzeugt oder verarbeitet, eigenes Produkt, fertig abgepackt und etikettiert.</p>`;
 
 ANSICHTEN.wo = () => `
 <h1>Wo Sie uns finden</h1>
 <p>Frischfleisch vom Schwein holen Sie bei uns ab. Dauerware schicken wir auch.</p>
-<div class="zwei" style="margin-top:2rem">
+<div class="ort zwei">
   <div>
-    <div class="ort">
-      <h2>Hofladen</h2>
-      <p class="zeit">Freitag, 9 bis 18 Uhr</p>
-      <p>Neben unserem Schweinefleisch: Angus-Weiderind, Lamm, Bio-Hähnchen und Fisch
-      von Erzeugern aus der Region.</p>
-      <p class="leise">Adresse und Anfahrt folgen.</p>
-    </div>
-    <div class="ort">
-      <h2>Verkaufswagen</h2>
-      <p class="zeit">Nürnberg Süd – Donnerstag und Freitag</p>
-      <p class="zeit">Scheinfeld – alle 14 Tage am Samstag</p>
-      <p class="leise">Genaue Stellplätze und Uhrzeiten folgen.</p>
-    </div>
+    <h2>Hofladen</h2>
+    <p class="zeit">Jeden Freitag, 9 bis 18 Uhr</p>
+    <p>Oberlaimbach 14, 91443 Scheinfeld</p>
+    <p>Neben unserem Schwarzerle gibt es Lebensmittel von Landwirten und kleinen Betrieben aus der Region:</p>
+    <ul class="fakten">
+      <li>Angus-Weiderind</li>
+      <li>Fränkisches Lammfleisch</li>
+      <li>Bio-Hähnchen, Hähnchenteile und Suppenhühner</li>
+      <li>Geräucherte und frische Fische aus der Hagenmühle, Willanzheim</li>
+      <li>Brot, Eier, Honig, Käse, Mehl aus Oberlaimbach, Nudeln, Eingemachtes <span class="leise">(laut Produktliste von 2016 – aktuellen Stand klären)</span></li>
+    </ul>
   </div>
-  <div class="foto">der Verkaufswagen</div>
+  <figure class="bild"><img src="bilder/hofladen.jpg" width="1200" height="856" alt="Der Hofladen von innen: Regale mit Gläsern, vorne Obstkisten">
+    <figcaption>Der Hofladen in Oberlaimbach</figcaption></figure>
+</div>
+<div class="ort zwei">
+  <div>
+    <h2>Verkaufswagen</h2>
+    <p class="zeit">Nürnberg Süd – jede Woche Donnerstag und Freitag</p>
+    <p class="zeit">Scheinfeld und Umgebung – alle 14 Tage am Samstag</p>
+    <p>In Scheinfeld kommen wir in ungeraden Kalenderwochen direkt vor die Haustür.
+    In Nürnberg Süd halten wir an festen Stellplätzen:</p>
+  </div>
+  <figure class="bild"><img src="bilder/wagen.jpg" width="1200" height="900" alt="Der gelbe Verkaufswagen mit offener Heckklappe und Kisten">
+    <figcaption>Unterwegs mit dem Verkaufswagen</figcaption></figure>
+</div>
+<ul class="stellplaetze" aria-label="Feste Stellplätze in Nürnberg Süd">
+  ${STELLPLAETZE.map(p => `<li><span class="sp-zeit">${p.tag} ${p.zeit}</span><span class="sp-ort"><b>${p.platz}</b><br>${p.ort}</span></li>`).join('')}
+</ul>
+<div class="ort">
+  <h2>Außerdem bei</h2>
+  <ul class="fakten">
+    <li><b>Eggolsheim</b> Metzgerei Albert, 91330 Eggolsheim</li>
+    <li><b>Unterfranken</b> Wurstkonserven im Hofladen vom Obsthof Weiglein, Rüderner Weg 4, 97353 Geesdorf-Wiesentheid</li>
+  </ul>
+</div>
+<div class="ort">
+  <h2>Hier kocht man mit unserem Fleisch</h2>
+  <ul class="fakten">
+    <li><b>Iphofen</b> Zur Iphöfer Kammer, am Marktplatz</li>
+    <li><b>Castell</b> Kniebrecher</li>
+    <li><b>Marktbreit</b> Michels Stern</li>
+    <li><b>Neustadt/Aisch</b> Kohlenmühle</li>
+    <li><b>Gasthaus Grüner Baum</b> Familie Thiele, fränkische Küche</li>
+  </ul>
+</div>
+<div class="ort" id="kontakt">
+  <h2>Kontakt</h2>
+  <p>Laimbachhof · Johannes Buchner<br>Oberlaimbach 14, 91443 Scheinfeld<br>
+  Telefon 09162 230000 · <a href="mailto:info@laimbachhof.de">info@laimbachhof.de</a></p>
 </div>`;
 
 function korbPostenHtml(p, i) {
-  const titel = p.art === 'frisch' ? `${teil(p.id).name}` : DAUERWARE.find(a => a.id === p.id).name;
+  const titel = p.art === 'frisch' ? `${teil(p.id).name}` : artikel(p.id).name;
   const detail = p.art === 'frisch'
     ? `Schwein Nr. ${p.schwein} · ${kg(p.kg)} × ${euro(p.preisKg)}/kg`
+    : p.paket ? `${p.kg} × ${euro(p.preisKg)} · inkl. Versand`
     : `${p.variante} · ${kg(p.kg)} × ${euro(p.preisKg)}/kg`;
   return `<li><div><div class="k-name">${titel}</div><div class="k-detail">${detail}</div></div>
     <div class="k-preis">${euro(rund2(p.kg * p.preisKg))}</div>
@@ -450,7 +583,7 @@ ANSICHTEN.korb = () => {
   const frisch = mitIndex.filter(x => x.p.art === 'frisch');
   const dauer = mitIndex.filter(x => x.p.art === 'dauer');
   const su = summen();
-  const fehltBisFrei = su.dauer > 0 && su.dauer < 50 ? rund2(50 - su.dauer) : 0;
+  const fehltBisFrei = su.versand ? rund2(50 - su.dauer) : 0;
   return `<h1>Ihr Korb</h1>
   ${frisch.length ? `<p class="gruppe-titel">Frischfleisch – zum Abholen</p>
     <ul class="korb-liste">${frisch.map(x => korbPostenHtml(x.p, x.i)).join('')}</ul>` : ''}
@@ -486,8 +619,10 @@ ANSICHTEN.kasse = () => {
         <p class="leise">Versand am nächsten Montag.</p>
       </fieldset>` : ''}
       ${hatFrisch ? `<fieldset><legend>Abholung des Frischfleischs</legend>
-        <label class="auswahl"><input type="radio" name="abholung" value="hofladen" checked><span>Hofladen<small>Freitag 9–18 Uhr, ab ${datum(SCHWEINE[0].abholung)}</small></span></label>
-        <label class="auswahl"><input type="radio" name="abholung" value="nuernberg"><span>Verkaufswagen Nürnberg Süd<small>Donnerstag oder Freitag</small></span></label>
+        <label class="auswahl"><input type="radio" name="abholung" value="hofladen" checked><span>Hofladen Oberlaimbach<small>Freitag 9–18 Uhr, ab ${datum(SCHWEINE[0].abholung)}</small></span></label>
+        <label class="auswahl"><input type="radio" name="abholung" value="nuernberg"><span>Verkaufswagen Nürnberg Süd<small>Donnerstag oder Freitag, an einem festen Stellplatz</small></span></label>
+        <label class="feld"><span>Stellplatz (nur Nürnberg Süd)</span><select name="stellplatz">
+          ${STELLPLAETZE.map(p => `<option>${p.tag} ${p.zeit} · ${p.platz}, ${p.ort}</option>`).join('')}</select></label>
         <label class="auswahl"><input type="radio" name="abholung" value="scheinfeld"><span>Verkaufswagen Scheinfeld<small>Samstag, alle 14 Tage</small></span></label>
       </fieldset>` : ''}
       <fieldset><legend>Bezahlen</legend>
@@ -497,8 +632,8 @@ ANSICHTEN.kasse = () => {
     </div>
     <div class="uebersicht">
       <h2>Übersicht</h2>
-      <ul class="korb-liste">${korb.map((p, i) => `<li><div><div class="k-name">${p.art === 'frisch' ? teil(p.id).name : DAUERWARE.find(a => a.id === p.id).name}</div>
-        <div class="k-detail">${kg(p.kg)}</div></div><div class="k-preis">${euro(rund2(p.kg * p.preisKg))}</div><span></span></li>`).join('')}</ul>
+      <ul class="korb-liste">${korb.map((p, i) => `<li><div><div class="k-name">${p.art === 'frisch' ? teil(p.id).name : artikel(p.id).name}</div>
+        <div class="k-detail">${p.paket ? p.kg + ' Stück' : kg(p.kg)}</div></div><div class="k-preis">${euro(rund2(p.kg * p.preisKg))}</div><span></span></li>`).join('')}</ul>
       ${summenHtml(su)}
       <label class="auswahl"><input type="checkbox" name="agb" required><span>Ich habe AGB, Widerruf und Datenschutz gelesen. <small>Texte folgen im echten Shop.</small></span></label>
       <p class="hinweis" id="kasse-fehler" role="alert"></p>
@@ -581,6 +716,11 @@ document.addEventListener('click', e => {
     korbHinzu({ art: 'dauer', id: a.id, variante, kg: m, preisKg: a.preise[variante] });
     box.querySelector('[data-meldung]').innerHTML = `${kg(m)} im Korb. <a href="#/korb">Zum Korb</a>`;
   }
+  if (aktion === 'paket-in-korb') {
+    const a = PAKETE.find(x => x.id === el.dataset.id);
+    korbHinzu({ art: 'dauer', id: a.id, variante: 'Paket', paket: true, kg: 1, preisKg: a.preis });
+    el.closest('[data-artikel]').querySelector('[data-meldung]').innerHTML = `Liegt im Korb. <a href="#/korb">Zum Korb</a>`;
+  }
   if (aktion === 'entfernen') {
     korb.splice(parseInt(el.dataset.index, 10), 1);
     korbSpeichern(); zeige();
@@ -607,6 +747,7 @@ document.addEventListener('change', e => {
   const box = e.target.closest('[data-artikel]');
   if (!box) return;
   const a = DAUERWARE.find(x => x.id === box.dataset.artikel);
+  if (!a) return;
   const v = box.querySelector('input[type=radio]:checked');
   const preis = a.preise[v ? v.value : Object.keys(a.preise)[0]];
   box.querySelector('[data-summe]').textContent = euro(rund2(preis * parseFloat(box.querySelector('select').value)));
