@@ -1,0 +1,259 @@
+/* Laimbachhof – Prototyp. Alle Farben und Schriften stehen hier oben an einer Stelle. */
+:root {
+  --schwarz: #1b1a17;
+  --papier: #f4efe4;
+  --papier-dunkel: #e6dcc6;
+  --akzent: #9c3b22;          /* Rostrot – die einzige Akzentfarbe */
+  --leise: #5f594e;
+  --linie: #cfc4ad;
+  --serif: "Libre Caslon Text", Georgia, "Times New Roman", serif;
+  --grotesk: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --breite: 1120px;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--papier);
+  color: var(--schwarz);
+  font: 17px/1.55 var(--grotesk);
+}
+h1, h2, h3 { font-family: var(--serif); font-weight: 400; line-height: 1.2; margin: 0 0 .5em; }
+h1 { font-size: clamp(2rem, 5vw, 3.2rem); }
+h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
+h3 { font-size: 1.25rem; }
+p { margin: 0 0 1em; max-width: 38em; }
+a { color: inherit; }
+.leise { color: var(--leise); font-size: .92rem; }
+
+/* Band oben */
+.band {
+  background: var(--schwarz);
+  color: var(--papier);
+  text-align: center;
+  font-size: .85rem;
+  padding: .35rem 1rem;
+  letter-spacing: .02em;
+}
+
+/* Kopfzeile */
+.kopf { border-bottom: 1px solid var(--schwarz); }
+.kopf-innen, .nav, main, .fuss { max-width: var(--breite); margin: 0 auto; padding-left: 1.25rem; padding-right: 1.25rem; }
+.kopf-innen { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-top: 1rem; padding-bottom: .5rem; }
+.marke { text-decoration: none; display: flex; flex-direction: column; min-height: 44px; justify-content: center; }
+.marke-hof { font-family: var(--serif); font-size: 1.7rem; line-height: 1.1; }
+.marke-sub { font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--leise); }
+.korb-link {
+  display: inline-flex; align-items: center; gap: .4rem;
+  min-height: 44px; padding: 0 1rem;
+  border: 1px solid var(--schwarz); text-decoration: none; font-weight: 600;
+}
+.korb-link span { background: var(--schwarz); color: var(--papier); min-width: 1.6em; text-align: center; padding: 0 .3em; }
+.nav { display: flex; gap: 2rem; padding-bottom: .25rem; }
+.nav a { display: flex; align-items: center; min-height: 44px; text-decoration: none; border-bottom: 3px solid transparent; }
+.nav a.aktiv, .korb-link.aktiv { border-bottom-color: var(--akzent); }
+.nav a:hover { border-bottom-color: var(--schwarz); }
+
+main { padding-top: 2.5rem; padding-bottom: 4rem; min-height: 60vh; }
+main:focus { outline: none; }
+
+/* Knöpfe */
+.knopf {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; padding: 0 1.4rem;
+  background: var(--schwarz); color: var(--papier);
+  border: 1px solid var(--schwarz); border-radius: 0;
+  font: 600 1rem var(--grotesk); text-decoration: none; cursor: pointer;
+}
+.knopf:hover { background: var(--akzent); border-color: var(--akzent); }
+.knopf.hell { background: transparent; color: var(--schwarz); }
+.knopf.hell:hover { background: var(--papier-dunkel); }
+.knopf[disabled] { opacity: .4; cursor: not-allowed; }
+.textknopf {
+  background: none; border: 0; padding: 0 .25rem; min-height: 44px; min-width: 44px;
+  font: inherit; text-decoration: underline; cursor: pointer; color: inherit;
+}
+:focus-visible { outline: 3px solid var(--akzent); outline-offset: 2px; }
+
+/* Fotoplatzhalter: bewusst kein Bild */
+.foto {
+  background: var(--papier-dunkel);
+  border: 1px solid var(--linie);
+  display: flex; align-items: flex-end;
+  aspect-ratio: 3 / 2;
+  padding: .75rem 1rem;
+  color: var(--leise); font-size: .9rem;
+}
+.foto::before { content: "Foto vom Hof · "; font-weight: 600; margin-right: .3em; }
+.foto.breit { aspect-ratio: 16 / 7; }
+
+/* Startseite */
+.start-oben { display: grid; grid-template-columns: 1.2fr 1fr; gap: 3rem; align-items: center; }
+.start-oben p { font-size: 1.15rem; }
+.drei { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; margin-top: 4rem; border-top: 1px solid var(--schwarz); padding-top: 2rem; }
+.mehr { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; }
+
+/* Schwein-Seite */
+.schwein-kopf { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem 1.5rem; border-bottom: 1px solid var(--schwarz); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+.schwein-kopf h1 { margin: 0; font-size: clamp(1.6rem, 4vw, 2.4rem); }
+.schwein-zeile { font-size: 1.05rem; margin: .25rem 0 0; }
+.schwein-zeile b { font-weight: 600; }
+.schalter { display: flex; gap: .5rem; flex-wrap: wrap; }
+.schwein-raster { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 2.5rem; align-items: start; }
+
+.tafel { width: 100%; height: auto; display: block; }
+.tafel .flaeche { stroke: var(--schwarz); stroke-width: 1.2; stroke-dasharray: 5 4; cursor: pointer; }
+.tafel .flaeche.frei { fill: var(--papier-dunkel); }
+.tafel .flaeche.knapp { fill: url(#muster-knapp); }
+.tafel .flaeche.weg { fill: var(--schwarz); cursor: not-allowed; }
+.tafel .flaeche:hover:not(.weg) { fill: #d8caa9; }
+.tafel .flaeche.knapp:hover { fill: url(#muster-knapp-hover); }
+.tafel .flaeche.gewaehlt { stroke: var(--akzent); stroke-width: 5; stroke-dasharray: none; }
+.tafel .flaeche:focus { outline: none; }
+.tafel .flaeche:focus-visible { stroke: var(--akzent); stroke-width: 5; stroke-dasharray: none; }
+.tafel .umriss { fill: none; stroke: var(--schwarz); stroke-width: 3; pointer-events: none; stroke-linejoin: round; }
+.tafel .schwarz { fill: var(--schwarz); pointer-events: none; }
+.tafel .strich { fill: none; stroke: var(--schwarz); stroke-width: 2.5; stroke-linecap: round; pointer-events: none; }
+.tafel text { font-family: var(--serif); font-size: 17px; text-anchor: middle; pointer-events: none; fill: var(--schwarz);
+  paint-order: stroke; stroke: var(--papier); stroke-width: 5px; stroke-linejoin: round; }
+.tafel text .klein { font-family: var(--grotesk); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.tafel text.auf-schwarz { fill: var(--papier); stroke: var(--schwarz); }
+.tafel .klein-text { font-size: 13px; }
+
+.legende { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; list-style: none; padding: 0; margin: 1rem 0 0; font-size: .92rem; }
+.legende li { display: flex; align-items: center; gap: .5rem; }
+.legende svg { width: 28px; height: 18px; border: 1px solid var(--schwarz); }
+
+.info { margin-top: 1.5rem; border-top: 1px solid var(--linie); border-bottom: 1px solid var(--linie); }
+.info summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 600; }
+.info p { font-size: .95rem; }
+
+.teilliste { list-style: none; margin: 2rem 0 0; padding: 0; border-top: 1px solid var(--schwarz); }
+.teilliste button {
+  width: 100%; min-height: 56px; display: grid; grid-template-columns: 1fr auto; gap: .1rem 1rem;
+  text-align: left; background: none; border: 0; border-bottom: 1px solid var(--linie);
+  font: inherit; color: inherit; padding: .6rem .25rem; cursor: pointer;
+}
+.teilliste button:hover { background: var(--papier-dunkel); }
+.teilliste button[aria-disabled="true"] { color: var(--leise); cursor: not-allowed; }
+.teilliste .tl-name { font-weight: 600; }
+.teilliste .tl-preis { text-align: right; font-variant-numeric: tabular-nums; }
+.teilliste .tl-status, .teilliste .tl-hinweis { font-size: .85rem; color: var(--leise); }
+.teilliste .tl-hinweis { text-align: right; }
+.marke-status { display: inline-block; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; border: 1px solid currentColor; padding: 0 .35em; margin-right: .4em; }
+.marke-status.knapp { color: var(--akzent); }
+.marke-status.weg { background: var(--schwarz); color: var(--papier); border-color: var(--schwarz); }
+
+/* Panel: Laptop rechts, Handy als Bottom-Sheet */
+.panel { position: sticky; top: 1rem; border: 1px solid var(--schwarz); background: var(--papier); padding: 1.25rem; }
+.panel-leer p { color: var(--leise); }
+.panel .foto { aspect-ratio: 4 / 3; margin-bottom: 1rem; }
+.panel h2 { margin-bottom: .25rem; }
+.panel-zu { display: none; }
+.preiszeile { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; border-top: 1px solid var(--linie); padding: .6rem 0; font-variant-numeric: tabular-nums; }
+.preiszeile .gross { font-family: var(--serif); font-size: 1.6rem; }
+.basis { color: var(--leise); font-size: .88rem; }
+.hinweis { font-size: .9rem; color: var(--akzent); font-weight: 600; margin: .25rem 0 .75rem; }
+.menge { display: flex; align-items: center; gap: .5rem; margin: .5rem 0 1rem; }
+.menge button { width: 48px; height: 48px; font-size: 1.4rem; border: 1px solid var(--schwarz); background: var(--papier); cursor: pointer; color: var(--schwarz); }
+.menge button[disabled] { opacity: .35; cursor: not-allowed; }
+.menge output { min-width: 5.5em; text-align: center; font-size: 1.15rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.panel .knopf { width: 100%; }
+.panel-rest { font-size: .85rem; color: var(--leise); margin-top: .5rem; }
+.schleier { display: none; }
+.bestaetigt { margin-top: .75rem; font-weight: 600; }
+
+/* Dauerware */
+.artikel-liste { list-style: none; margin: 2rem 0 0; padding: 0; border-top: 1px solid var(--schwarz); }
+.artikel { display: grid; grid-template-columns: 200px 1fr 300px; gap: 2rem; padding: 1.75rem 0; border-bottom: 1px solid var(--linie); align-items: start; }
+.artikel .foto { aspect-ratio: 1; }
+.artikel h3 { margin-bottom: .25rem; }
+.wahl { display: flex; gap: 0; margin-bottom: .75rem; }
+.wahl label { flex: 1; }
+.wahl input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.wahl span { display: flex; align-items: center; justify-content: center; min-height: 44px; border: 1px solid var(--schwarz); padding: 0 .75rem; cursor: pointer; font-size: .95rem; }
+.wahl label + label span { border-left: 0; }
+.wahl input:checked + span { background: var(--schwarz); color: var(--papier); }
+.wahl input:focus-visible + span { outline: 3px solid var(--akzent); outline-offset: 2px; }
+.feld { display: block; margin-bottom: .75rem; }
+.feld > span { display: block; font-size: .88rem; color: var(--leise); margin-bottom: .2rem; }
+select, input[type=text], input[type=email], input[type=tel] {
+  width: 100%; min-height: 48px; font: 16px var(--grotesk); color: var(--schwarz);
+  background: #fbf8f1; border: 1px solid var(--schwarz); border-radius: 0; padding: 0 .75rem;
+}
+.versandregel { border: 1px solid var(--schwarz); padding: 1rem 1.25rem; margin-top: 1.5rem; }
+.versandregel p { margin: 0; }
+
+/* Hof, Wo kaufen */
+.zwei { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+.fakten { list-style: none; padding: 0; margin: 1.5rem 0; border-top: 1px solid var(--schwarz); }
+.fakten li { padding: .7rem 0; border-bottom: 1px solid var(--linie); }
+.fakten b { display: inline-block; min-width: 9em; }
+.ort { border-top: 1px solid var(--schwarz); padding: 1.5rem 0; }
+.ort h2 { margin-bottom: .25rem; }
+.zeit { font-family: var(--serif); font-size: 1.3rem; margin-bottom: .5rem; }
+
+/* Korb und Kasse */
+.korb-liste { list-style: none; padding: 0; margin: 0 0 1.5rem; border-top: 1px solid var(--schwarz); }
+.korb-liste li { display: grid; grid-template-columns: 1fr auto auto; gap: .25rem 1.25rem; align-items: center; padding: .9rem 0; border-bottom: 1px solid var(--linie); }
+.korb-liste .k-name { font-weight: 600; }
+.korb-liste .k-detail { font-size: .88rem; color: var(--leise); }
+.korb-liste .k-preis { font-variant-numeric: tabular-nums; text-align: right; }
+.gruppe-titel { font-family: var(--serif); font-size: 1.25rem; margin: 2rem 0 .5rem; }
+.summen { max-width: 420px; margin-left: auto; font-variant-numeric: tabular-nums; }
+.summen div { display: flex; justify-content: space-between; gap: 1rem; padding: .4rem 0; }
+.summen .gesamt { border-top: 2px solid var(--schwarz); margin-top: .4rem; padding-top: .6rem; font-weight: 600; font-size: 1.15rem; }
+.summen-knopf { display: flex; justify-content: flex-end; gap: .75rem; flex-wrap: wrap; margin-top: 1.5rem; }
+.kasse { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 3rem; align-items: start; }
+fieldset { border: 0; border-top: 1px solid var(--schwarz); padding: 1rem 0 .5rem; margin: 0 0 1.5rem; min-width: 0; }
+legend { font-family: var(--serif); font-size: 1.3rem; padding-right: .5rem; }
+.reihe { display: grid; grid-template-columns: 1fr 2fr; gap: 0 1rem; }
+.auswahl { display: flex; align-items: flex-start; gap: .75rem; min-height: 44px; padding: .6rem 0; cursor: pointer; border-bottom: 1px solid var(--linie); }
+.auswahl input { width: 22px; height: 22px; margin: .15rem 0 0; accent-color: var(--schwarz); flex: none; }
+.auswahl small { display: block; color: var(--leise); }
+.uebersicht { border: 1px solid var(--schwarz); padding: 1.25rem; position: sticky; top: 1rem; }
+.uebersicht .summen { max-width: none; }
+.uebersicht .knopf { width: 100%; margin-top: 1rem; }
+.fertig { max-width: 40em; border: 2px solid var(--schwarz); padding: 2rem; }
+
+/* Handy und kleine Fenster */
+@media (max-width: 899px) {
+  body { font-size: 16px; }
+  .kopf-innen { padding-top: .75rem; }
+  .marke-hof { font-size: 1.4rem; }
+  .nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: .25rem; font-size: .9rem; padding-left: .75rem; padding-right: .75rem; }
+  .nav a { justify-content: center; text-align: center; line-height: 1.15; }
+  main { padding-top: 1.5rem; }
+  .start-oben, .zwei, .kasse { grid-template-columns: 1fr; gap: 1.5rem; }
+  .drei { grid-template-columns: 1fr; gap: 1.5rem; margin-top: 2.5rem; }
+  .schwein-raster { grid-template-columns: 1fr; gap: 0; }
+  .artikel { grid-template-columns: 1fr; gap: 1rem; }
+  .artikel .foto { aspect-ratio: 3 / 1; }
+  .reihe { grid-template-columns: 1fr; }
+  .teilliste .tl-hinweis { grid-column: 1 / -1; text-align: left; }
+  .uebersicht { position: static; }
+
+  /* Panel wird zum Bottom-Sheet */
+  .panel {
+    position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 20;
+    max-height: 85vh; overflow-y: auto;
+    border-width: 2px 0 0; padding: 1rem 1.25rem 1.5rem;
+    transform: translateY(105%); transition: transform .2s ease-out;
+  }
+  .panel { visibility: hidden; }
+  .panel.offen { transform: none; visibility: visible; }
+  .tafel text { font-size: 26px; stroke-width: 6px; }
+  .tafel .klein-text { font-size: 20px; }
+  .tafel text .klein { display: none; }
+  .panel-leer { display: none; }
+  .panel .foto { display: none; }
+  .panel-zu { display: flex; position: absolute; top: .5rem; right: .75rem; }
+  .schleier { position: fixed; inset: 0; background: rgba(27, 26, 23, .45); z-index: 15; }
+  .schleier.offen { display: block; }
+}
+@media (min-width: 900px) {
+  .schleier { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) { .panel { transition: none; } }
+.bestaetigt a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 .25rem; }
