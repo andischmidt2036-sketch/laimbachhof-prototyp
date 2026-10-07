@@ -12,6 +12,8 @@ const euro = n => n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR'
 const kg = n => n.toLocaleString('de-DE', { maximumFractionDigits: 2 }) + ' kg';
 const datum = d => d.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
 const rund2 = n => Math.round(n * 100) / 100;
+// Kurzdatum für den Tagespreis, z. B. „07.10.“
+const tagKurz = d => d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
 
 // ---------- Daten: Teilstücke ----------
 // Jedes Teilstück gehört zu einer Fläche in der Grafik (gleiche id).
@@ -110,13 +112,17 @@ function tagesfaktor(schwein, id) {
 function preisHeute(schwein, id) {
   return Math.round(teil(id).basis * (1 + tagesfaktor(schwein, id)) * 10) / 10;
 }
-function preisHinweis(schwein, id) {
-  const f = tagesfaktor(schwein, id);
-  const p = Math.round(Math.abs(f) * 100);
-  if (p < 2) return 'heute Grundpreis';
-  if (f < 0) return `heute ${p} % günstiger – noch viel da`;
-  return `heute ${p} % teurer – ${f >= 0.08 ? 'fast vergeben' : 'gefragt'}`;
-}
+// Rechtsprüfung 07.10.: am Preis nur „Tagespreis“ mit Datum – kein Vergleich,
+// kein „% günstiger“, kein Normal- oder Basispreis daneben. Sonst gilt das als
+// Preisermäßigung nach § 11 PAngV (BGH I ZR 183/24).
+const preisHinweis = () => `Tagespreis ${tagKurz(HEUTE)}`;
+
+// Erklärtext „So entsteht der Tagespreis“ (Wortlaut aus dem Rechtsbericht)
+const PREIS_ERKLAERUNG = `<p>Wir verkaufen jedes Schwein komplett. Darum richtet sich der Preis eines Teilstücks
+  nach der noch verfügbaren Menge und den Tagen bis zum Schlachttermin. Er bewegt sich
+  in einem festen Rahmen von höchstens 15 % nach oben oder unten, ändert sich höchstens
+  einmal am Tag (um 0 Uhr), ist für alle Kundinnen und Kunden gleich und wird nicht
+  persönlich angepasst. Der Preis, den Sie beim Bestellen sehen, gilt für Ihre Bestellung.</p>`;
 
 // ---------- Korb ----------
 // In der sessionStorage, damit ein Neuladen den Korb nicht leert.
@@ -302,7 +308,7 @@ function teillisteHtml(s) {
   return TEILSTUECKE.map(t => {
     const st = status(s, t.id);
     const preis = st === 'weg' ? '' : `${euro(preisHeute(s, t.id))}/kg`;
-    const hinweis = st === 'weg' ? '' : preisHinweis(s, t.id);
+    const hinweis = st === 'weg' ? '' : preisHinweis();
     const restText = st === 'weg' ? 'alles vergeben' : `noch ${kg(rest(s, t.id))}`;
     return `<li><button type="button" data-teil="${t.id}" ${st === 'weg' ? 'aria-disabled="true"' : ''}>
       <span class="tl-name">${t.name}</span><span class="tl-preis">${preis}</span>
@@ -331,17 +337,19 @@ function panelHtml(s) {
   return `${knopfZu}<div class="foto">${t.name}</div>
     <h2>${t.name}</h2>
     <p>${t.text}</p>
-    <div class="preiszeile"><span>Preis heute</span><span class="gross">${euro(p)}/kg</span></div>
-    <p class="basis">Grundpreis ohne Tagesfaktor: ${euro(t.basis)}/kg</p>
-    <p class="hinweis">${preisHinweis(s, gewaehlt)}</p>
+    <p class="preis-neutral"><b>${t.name}</b> · <span class="gross">${euro(p)}/kg</span> · <i>${preisHinweis()}</i></p>
+    <p class="leise"><a class="infolink" href="#/preis">So entsteht der Tagespreis</a></p>
     <div class="menge" aria-label="Menge">
       <button type="button" data-aktion="weniger" aria-label="weniger" ${menge <= t.schritt ? 'disabled' : ''}>−</button>
       <output aria-live="polite">${kg(menge)}</output>
       <button type="button" data-aktion="mehr" aria-label="mehr" ${menge + t.schritt > r + 1e-9 ? 'disabled' : ''}>+</button>
     </div>
-    <div class="preiszeile"><span>Zusammen</span><span class="gross">${euro(rund2(menge * p))}</span></div>
+    <div class="preiszeile"><span>Ihre Menge ca. ${kg(menge)}</span><span class="gross">ca. ${euro(rund2(menge * p))}</span></div>
+    <p class="leise">inkl. MwSt. – abgerechnet wird das genaue Gewicht.</p>
     <button type="button" class="knopf" data-aktion="in-korb">In den Korb</button>
-    <p class="panel-rest"><span class="marke-status ${st}">${STATUSTEXT[st]}</span>noch ${kg(r)} von diesem Schwein · Abholung ab ${datum(s.abholung)}</p>
+    <p class="panel-rest"><span class="marke-status ${st}">${STATUSTEXT[st]}</span>noch ${kg(r)} von diesem Schwein · Schlachttermin ${datum(s.termin)}</p>
+    <p class="leise">Nur Abholung, kein Versand: ab ${datum(s.abholung)} im Hofladen oder am Verkaufswagen, keine Versandkosten.
+    Frischfleisch ist schnell verderblich, darum gibt es dafür kein Widerrufsrecht.</p>
     ${bestaetigung ? `<p class="bestaetigt" role="status">${bestaetigung} <a href="#/korb">Zum Korb</a></p>` : ''}`;
 }
 
@@ -365,12 +373,8 @@ ANSICHTEN.schwein = () => {
       <li>${musterKlein('weg')} vergeben</li>
     </ul>
     <details class="info">
-      <summary>Warum sich die Preise bewegen</summary>
-      <p>Wir wollen jedes Schwein ganz verkaufen. Was gefragt ist, kostet darum etwas mehr,
-      was kurz vor dem Schlachttermin noch reichlich da ist, etwas weniger – höchstens 15 %
-      in jede Richtung.</p>
-      <p>Der Preis gilt einen Tag lang für alle gleich und steht fest, sobald Sie bestellen.
-      Den Grundpreis zeigen wir immer daneben.</p>
+      <summary>So entsteht der Tagespreis</summary>
+      ${PREIS_ERKLAERUNG}
     </details>
     <ul class="teilliste" aria-label="Alle Teilstücke">${teillisteHtml(s)}</ul>
   </div>
@@ -405,6 +409,7 @@ ${DAUERWARE.map(a => {
       <label class="feld"><span>Menge</span>
         <select name="m-${a.id}">${optionen.join('')}</select></label>
       <div class="preiszeile"><span>Zusammen</span><span class="gross" data-summe>${euro(a.preise[varianten[0]] * a.min)}</span></div>
+      <p class="leise">inkl. MwSt., zzgl. 10 € Versand je Paket (ab 50 € Warenwert frei)</p>
       <button type="button" class="knopf" data-aktion="dauer-in-korb" data-id="${a.id}" style="width:100%">In den Korb</button>
       <p class="bestaetigt" role="status" data-meldung></p>
     </div>
@@ -418,7 +423,7 @@ ${PAKETE.map(a => `<li class="artikel" data-artikel="${a.id}">
     <img class="artikel-bild" src="bilder/${a.bild}" alt="${a.name}: Holzkiste mit Wurst und Produkten aus der Region">
     <div><h3>${a.name}</h3><p>${a.inhalt}</p></div>
     <div>
-      <div class="preiszeile"><span>inkl. Versand</span><span class="gross">${euro(a.preis)}</span></div>
+      <div class="preiszeile"><span>inkl. MwSt. und Versand</span><span class="gross">${euro(a.preis)}</span></div>
       <button type="button" class="knopf" data-aktion="paket-in-korb" data-id="${a.id}" style="width:100%">In den Korb</button>
       <p class="bestaetigt" role="status" data-meldung></p>
     </div>
@@ -569,7 +574,7 @@ function summenHtml(su) {
     ${su.dauer ? `<div><span>Dauerware</span><span>${euro(su.dauer)}</span></div>
     <div><span>Versand${su.versand ? ' (frei ab 50 € Dauerware)' : ''}</span><span>${su.versand ? euro(su.versand) : 'frei'}</span></div>` : ''}
     <div class="gesamt"><span>Gesamt</span><span>${euro(su.gesamt)}</span></div>
-    <p class="leise" style="margin-top:.5rem">Alle Preise inkl. MwSt. (Beispiel, rechtlich nicht geprüft)</p>
+    <p class="leise" style="margin-top:.5rem">Alle Preise inkl. MwSt. Frischfleisch: abgerechnet wird das genaue Gewicht.</p>
   </div>`;
 }
 
@@ -641,6 +646,30 @@ ANSICHTEN.kasse = () => {
     </div>
   </form>`;
 };
+
+ANSICHTEN.preis = () => `
+<div class="textseite">
+  <h1>So entsteht der Tagespreis</h1>
+  ${PREIS_ERKLAERUNG}
+  <a class="knopf hell" href="#/schwein">Zurück zum Schwein</a>
+</div>`;
+
+// Platzhalter: die echten Texte kommen von einem Rechtstexte-Dienst oder Anwalt.
+function rechtsseite(titel, inhalt) {
+  return `<div class="textseite"><h1>${titel}</h1>${inhalt}
+    <p class="leise">Platzhalter im Prototyp – der echte Text folgt.</p></div>`;
+}
+ANSICHTEN.impressum = () => rechtsseite('Impressum', '<p>Anbieter nach § 5 DDG: Name, Anschrift, Kontakt, Umsatzsteuer-ID.</p>');
+ANSICHTEN.datenschutz = () => rechtsseite('Datenschutz', '<p>Welche Daten wir bei einer Bestellung speichern, wozu und wie lange.</p>');
+ANSICHTEN.agb = () => rechtsseite('AGB', '<p>Vertragsschluss, Abrechnung nach Gewicht, Abholfrist, was gilt, wenn ein Schwein ausfällt.</p>');
+ANSICHTEN.widerruf = () => rechtsseite('Widerruf', `
+  <p><b>Frischfleisch</b> ist schnell verderblich – dafür gibt es kein Widerrufsrecht.</p>
+  <p><b>Dauerware und Geschenkpakete</b> (Versand) können Sie innerhalb von 14 Tagen widerrufen.
+  Hier stehen im echten Shop die Widerrufsbelehrung und das Muster-Widerrufsformular.</p>
+  <a class="knopf" href="#/widerrufen">Vertrag widerrufen</a>`);
+ANSICHTEN.widerrufen = () => rechtsseite('Vertrag widerrufen', `
+  <p>Widerruf für Dauerware oder Geschenkpakete. Im echten Shop geben Sie hier Name, E-Mail und
+  Bestellnummer an und bestätigen mit „Widerruf bestätigen“; Sie bekommen sofort eine Eingangsbestätigung per Mail.</p>`);
 
 ANSICHTEN.fertig = () => `
 <div class="fertig">

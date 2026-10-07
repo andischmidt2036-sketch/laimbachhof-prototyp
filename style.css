@@ -281,3 +281,12 @@ legend { font-family: var(--serif); font-size: 1.3rem; padding-right: .5rem; }
 .foto.breit::before { content: "Platzhalter · "; }
 #kontakt a { display: inline-flex; align-items: center; min-height: 44px; }
 @media (max-width: 899px) { .stellplaetze li { grid-template-columns: 8.4em 1fr; gap: .75rem; } .sp-zeit { white-space: nowrap; } }
+
+/* Tagespreis neutral, ohne Vergleich (Rechtsprüfung 07.10.) */
+.preis-neutral { margin: .5rem 0 .25rem; }
+.preis-neutral .gross { font-size: 1.3rem; }
+.infolink { display: inline-flex; align-items: center; min-height: 44px; }
+.textseite { max-width: 42rem; }
+/* Fußzeile: Rechtstexte, Tippfläche mindestens 44 px */
+.fuss-links { display: flex; flex-wrap: wrap; gap: 0 1.25rem; }
+.fuss-links a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
