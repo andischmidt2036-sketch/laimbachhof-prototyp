@@ -24,7 +24,8 @@ function naechsterDienstag(ab) {
   while (d.getDay() !== 2) d.setDate(d.getDate() + 1);
   return d;
 }
-const tag = d => d.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'numeric' }).replace(',', '');
+// „Di 27.10.“ – ohne Punkt nach dem Wochentag, spart am Handy Platz
+const tag = d => d.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'numeric' }).replace(',', '').replace('.', '');
 const SCHLACHTUNG = naechsterDienstag(16);
 const ABHOLUNG = plusTage(SCHLACHTUNG, 3);     // der Freitag danach
 const ABHOLORT = 'Hofladen Oberlaimbach';
@@ -136,7 +137,7 @@ function zeichneKopf() {
     ? `zu ${p} % vergeben <span class="dein">· mit dir ${mitDir} %</span>`
     : `zu ${p} % vergeben`;
   // Jedes Stück für sich unteilbar, damit der Umbruch am Handy nur an den Punkten passiert
-  $('#termine').innerHTML = `<span>Schlachtung <b>${tag(SCHLACHTUNG)}</b></span> <span>· Abholung <b>${tag(ABHOLUNG)}, ${ABHOLZEIT}</b></span> <span>· ${ABHOLORT}</span>`;
+  $('#termine').innerHTML = `<span>Schlachtung <b>${tag(SCHLACHTUNG)}</b> ·</span> <span>Abholung <b>${tag(ABHOLUNG)}, ${ABHOLZEIT}</b>, ${ABHOLORT}</span>`;
   $('#tagespreis-datum').textContent = `Tagespreis ${PREISDATUM}`;
 }
 
@@ -153,24 +154,43 @@ function baueBuehne() {
   $('#leinwand').innerHTML = `
     <svg class="tier-svg" viewBox="0 0 ${w} ${h}" aria-hidden="true">
       <defs>
-        <pattern id="schraffur" width="13" height="13" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <rect width="13" height="13" fill="rgba(12,11,10,.42)"/><rect width="2.2" height="13" fill="rgba(255,244,230,.2)"/>
+        <pattern id="schraffur" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect width="12" height="12" fill="rgba(12,11,10,.38)"/><rect width="1.6" height="12" fill="rgba(255,244,230,.16)"/>
         </pattern>
         <pattern id="schraffur-dunkel" width="13" height="13" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <rect width="13" height="13" fill="rgba(10,9,8,.6)"/><rect width="2.2" height="13" fill="rgba(255,244,230,.08)"/>
+          <rect width="13" height="13" fill="rgba(10,9,8,.6)"/><rect width="1.6" height="13" fill="rgba(255,244,230,.07)"/>
         </pattern>
         <radialGradient id="glut-verlauf" cx="50%" cy="35%" r="75%">
           <stop offset="0" stop-color="#ffd3a1"/><stop offset=".6" stop-color="#e59a5c"/><stop offset="1" stop-color="#a65a2a"/>
         </radialGradient>
         <filter id="weich" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter>
+        <filter id="weich-innen" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="5"/></filter>
+        <filter id="schatten" x="-30%" y="-30%" width="160%" height="170%">
+          <feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#000" flood-opacity=".7"/>
+        </filter>
+        <clipPath id="ausschnitt"><polygon id="ausschnitt-form" points=""/></clipPath>
+        <!-- Licht auf dem gewählten Stück: Bild heller und eine Spur wärmer, Fellstruktur bleibt sichtbar -->
+        <filter id="hell" color-interpolation-filters="sRGB">
+          <feComponentTransfer>
+            <feFuncR type="linear" slope="1.7" intercept=".045"/>
+            <feFuncG type="linear" slope="1.56" intercept=".032"/>
+            <feFuncB type="linear" slope="1.36" intercept=".022"/>
+          </feComponentTransfer>
+        </filter>
       </defs>
       <image class="tier" href="${BILD.datei}" width="${w}" height="${h}"/>
       <g class="zonen">${mitZone.map(t =>
         `<polygon class="zone" data-teil="${t.id}" points="${zonen[t.id]}"/>`).join('')}</g>
       <g class="schnitte">${mitZone.map(t => `<polygon points="${zonen[t.id]}"/>`).join('')}</g>
-      <polygon class="glut-schein" id="glut-schein" points=""/>
-      <polygon class="glut" id="glut" points=""/>
-      <polygon class="glut-rand" id="glut-rand" points=""/>
+      <!-- Das gewählte Stück hebt sich aus dem Tier heraus: Bildausschnitt + warmes Licht + Kante, mit Schatten -->
+      <g class="heraus" id="heraus" filter="url(#schatten)">
+        <g class="heraus-innen">
+          <polygon class="glut-schein" id="glut-schein" points=""/>
+          <image href="${BILD.datei}" width="${w}" height="${h}" clip-path="url(#ausschnitt)" filter="url(#hell)"/>
+          <polygon class="glut" id="glut" points=""/>
+          <polygon class="glut-rand" id="glut-rand" points=""/>
+        </g>
+      </g>
     </svg>
     <div class="pins">${mitZone.map(t => {
       const [x, y] = pins[t.id];
@@ -197,9 +217,9 @@ function zeichneBuehne() {
     p.setAttribute('aria-label', `${tt.name}, ${st === 'weg' ? 'vergeben' : `${euro(tt.preis)} je kg, ${vorratText(tt)}`}`);
     p.setAttribute('aria-pressed', String(tt.id === gewaehlt));
   });
-  // Leuchten: dieselbe Form wie die Zone, drei Lagen (Schein, Licht, Kante)
+  // Herausheben: dieselbe Form wie die Zone – Bildausschnitt, Licht und Kante
   const form = t && BILD.zonen[t.id] ? BILD.zonen[t.id] : '';
-  ['#glut', '#glut-schein', '#glut-rand'].forEach(s => $(s).setAttribute('points', form));
+  ['#glut', '#glut-schein', '#glut-rand', '#ausschnitt-form'].forEach(s => $(s).setAttribute('points', form));
   zeigeEtikett(schwebt || gewaehlt);
 }
 
@@ -255,25 +275,12 @@ const kopfZeile = (vorzeile, titel) => `
     <button type="button" class="zu" data-zu aria-label="Schließen">${ICON_ZU}</button>
   </div>`;
 
-// Kleines Schwein im Detail (Laptop): zeigt, wo das Stück am Tier sitzt
-function miniSchwein(t) {
-  const { breite: w, hoehe: h, zonen } = BILD;
-  const form = zonen[t.id];
-  return `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true">
-    <image href="${BILD.datei}" width="${w}" height="${h}" opacity=".9"/>
-    ${Object.keys(zonen).map(k => `<polygon points="${zonen[k]}" fill="${t.ganz ? 'rgba(244,181,124,.22)' : 'rgba(10,9,8,.5)'}"/>`).join('')}
-    ${form ? `<polygon points="${form}" fill="url(#glut-verlauf)" style="mix-blend-mode:screen" opacity=".7"/>
-    <polygon points="${form}" fill="none" stroke="#ffe2c4" stroke-width="5" stroke-linejoin="round"/>` : ''}
-  </svg>`;
-}
-
 function zeigeTeil(id) {
   const t = teil(id);
   const st = status(t);
   ansicht = 'teil';
   if (st === 'weg') {
     blatt(`${kopfZeile(t.beiname, t.name)}
-      <div class="mini">${miniSchwein(t)}</div>
       <p class="wo">${t.wo}</p>
       <ul class="eignung">${t.fuer.map(f => `<li>${f}</li>`).join('')}</ul>
       <div class="preisblock"><p class="vorrat weg"><i class="punkt weg"></i>Von Nr. 15 schon vergeben</p></div>
@@ -286,7 +293,6 @@ function zeigeTeil(id) {
   const start = t.stueck ? t.schritt : Math.max(t.schritt, Math.floor(1 / t.schritt + 1e-9) * t.schritt);
   menge = rund2(Math.min(start, Math.floor(r / t.schritt + 1e-9) * t.schritt));
   blatt(`${kopfZeile(t.beiname, t.name)}
-    <div class="mini">${miniSchwein(t)}</div>
     <p class="wo">${t.wo}</p>
     <ul class="eignung" aria-label="Wofür">${t.fuer.map(f => `<li>${f}</li>`).join('')}</ul>
     <p class="tipp"><b>Tipp vom Hof</b>${t.tipp}</p>

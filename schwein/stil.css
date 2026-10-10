@@ -80,13 +80,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .leinwand { position: relative; width: 100%; margin: 0 auto; max-width: 1180px; }
 /* Bodenschatten: das Tier steht, statt zu schweben */
 .leinwand::before {
-  content: ""; position: absolute; left: 12%; right: 10%; bottom: -1.5%; height: 9%; z-index: 0;
-  background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0) 70%);
+  content: ""; position: absolute; left: 22%; right: 9%; bottom: -2.5%; height: 7%; z-index: 0;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, .6), rgba(0, 0, 0, 0) 72%);
   pointer-events: none;
 }
 .tier-svg { position: relative; z-index: 1; display: block; width: 100%; height: auto; overflow: visible; }
-/* Beine laufen unten weich ins Dunkel aus (die Vorlage ist dort unscharf) */
-.tier { -webkit-mask-image: linear-gradient(180deg, #000 86%, rgba(0, 0, 0, .25) 100%); mask-image: linear-gradient(180deg, #000 86%, rgba(0, 0, 0, .25) 100%); }
 
 /* Klickzonen: unsichtbar, bis man sie berührt */
 .zone { fill: rgba(255, 236, 214, 0); stroke: rgba(255, 238, 220, .0); stroke-width: 2; stroke-linejoin: round; cursor: pointer;
@@ -99,20 +97,23 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* Schnittlinien wie mit Kreide: zeigen, dass das Tier aus Stücken besteht */
 .schnitte polygon { fill: none; stroke: rgba(255, 240, 222, .2); stroke-width: 1.8; stroke-dasharray: 2 7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; transition: stroke .35s; }
 /* Sobald ein Stück gewählt ist, tritt der Rest zurück */
-.hat-wahl .zone:not(.aktiv) { fill: rgba(10, 9, 8, .52); }
+.hat-wahl .zone:not(.aktiv) { fill: rgba(10, 9, 8, .58); }
 .hat-wahl .zone.weg:not(.aktiv) { fill: url(#schraffur-dunkel); }
 .hat-wahl .schnitte polygon { stroke: rgba(255, 240, 222, .07); }
 .hat-wahl.ganz .zone { fill: rgba(244, 181, 124, .16); }   /* Hack & Bratwurst: kommt vom ganzen Tier */
 
-/* Das Leuchten: warmes Licht auf dem gewählten Stück (screen hellt auf, ohne die Fellstruktur zu verlieren) */
-.glut { fill: url(#glut-verlauf); mix-blend-mode: screen; opacity: 0; pointer-events: none; transition: opacity .3s var(--weich); }
-.glut-schein { fill: none; stroke: var(--glut); stroke-width: 10; opacity: 0; filter: url(#weich); pointer-events: none; }
-.glut-rand { fill: none; stroke: #ffe2c4; stroke-width: 2.4; stroke-linejoin: round; opacity: 0; pointer-events: none; }
-.hat-wahl .glut { opacity: .62; }
-.hat-wahl .glut-schein { opacity: .55; }
-.hat-wahl .glut-rand { opacity: .9; }
-.ganz .glut, .ganz .glut-schein, .ganz .glut-rand { opacity: 0 !important; }
-.aufleuchten .glut, .aufleuchten .glut-schein, .aufleuchten .glut-rand { animation: aufleuchten .5s var(--weich); }
+/* Das gewählte Stück hebt sich heraus: Ausschnitt des Bilds, etwas angehoben, mit Schatten und warmem Licht.
+   Zurück bleibt eine dunkle Mulde – wie ein Stück, das man aus dem Tier nimmt. */
+.heraus { pointer-events: none; opacity: 0; transition: opacity .25s var(--weich); }
+.heraus-innen { transform: translateY(0); transform-box: view-box; transition: transform .45s var(--feder); }
+.hat-wahl .heraus { opacity: 1; }
+.hat-wahl .heraus-innen { transform: translateY(-14px); }
+.hat-wahl .zone.aktiv { fill: rgba(4, 3, 2, .82); }
+.glut { fill: url(#glut-verlauf); mix-blend-mode: screen; filter: url(#weich-innen); opacity: .16; }
+.glut-schein { fill: none; stroke: var(--glut); stroke-width: 12; opacity: .28; filter: url(#weich); }
+.glut-rand { fill: none; stroke: #ffe6cc; stroke-width: 1.6; stroke-linejoin: round; opacity: .55; }
+.ganz .heraus { opacity: 0 !important; }
+.aufleuchten .heraus { animation: aufleuchten .45s var(--weich); }
 @keyframes aufleuchten { from { opacity: 0; } }
 
 /* Punkte auf dem Tier: Tippziel 44 px, sichtbar nur ein kleiner Lichtpunkt */
@@ -122,9 +123,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .pin.knapp::before { background: #f3b45c; box-shadow: 0 0 0 3px rgba(243, 180, 92, .2), 0 1px 6px rgba(0, 0, 0, .5); }
 .pin.weg::before { background: transparent; box-shadow: inset 0 0 0 1.5px rgba(255, 247, 238, .5); }
 .pin.aktiv::before { transform: scale(1.25); background: #fff; box-shadow: 0 0 0 5px rgba(255, 226, 196, .25), 0 0 18px rgba(255, 210, 160, .7); }
-.hat-wahl .pin:not(.aktiv)::before { opacity: .3; }
-.pin.anstupsen::before { animation: atmen 2.4s var(--weich) 2; }
-@keyframes atmen { 50% { box-shadow: 0 0 0 9px rgba(255, 247, 238, .18), 0 1px 6px rgba(0, 0, 0, .5); } }
+.hat-wahl .pin:not(.aktiv)::before { opacity: .45; box-shadow: none; transform: scale(.75); }
+/* Einmal eine feine Welle um jeden Punkt: „hier kann man tippen“ */
+.pin::after { content: ""; position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; border: 1px solid rgba(255, 247, 238, .7); opacity: 0; pointer-events: none; }
+.pin.anstupsen::after { animation: welle 1.9s cubic-bezier(.2, .6, .3, 1) 2; }
+.pin.anstupsen:nth-child(2n)::after { animation-delay: .25s; }
+.pin.anstupsen:nth-child(3n)::after { animation-delay: .5s; }
+@keyframes welle { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(4.2); opacity: 0; } }
+.hat-wahl .pin::after { display: none; }
 
 /* Etikett: Name des Stücks über dem Punkt */
 .etikett {
@@ -191,7 +197,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .zu { position: relative; }
 .zu::after { content: ""; position: absolute; inset: -4px; }
 
-.mini { display: none; }
 .wo { margin-top: 10px; font-size: 15px; line-height: 1.45; color: #3e3a35; }
 .eignung { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .eignung li { font-size: 13px; font-weight: 550; padding: 5px 11px; border-radius: 999px; background: rgba(23, 22, 20, .055); }
@@ -277,8 +282,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .blatt-offen .paketleiste { opacity: 0; pointer-events: none; transform: translateY(20px); transition: opacity .2s, transform .3s; }
 
 /* Kurze Meldung (Toast) */
-.meldung { position: fixed; z-index: 60; left: 50%; top: calc(14px + env(safe-area-inset-top)); transform: translate(-50%, -150%); background: var(--tinte); color: #fff; font-size: 14px; font-weight: 550; padding: 10px 16px; border-radius: 999px; box-shadow: 0 10px 30px rgba(0, 0, 0, .25); transition: transform .4s var(--feder); max-width: calc(100% - 32px); text-align: center; }
-.meldung.an { transform: translate(-50%, 0); }
+.meldung { position: fixed; z-index: 60; left: 50%; top: calc(14px + env(safe-area-inset-top)); transform: translate(-50%, calc(-100% - 40px)); visibility: hidden; background: var(--tinte); color: #fff; font-size: 14px; font-weight: 550; padding: 10px 16px; border-radius: 999px; box-shadow: 0 10px 30px rgba(0, 0, 0, .25); transition: transform .4s var(--feder); max-width: calc(100% - 32px); text-align: center; }
+.meldung.an { transform: translate(-50%, 0); visibility: visible; }
 
 .fuss { padding: 0 var(--rand) 100px; font-size: 12px; line-height: 1.5; color: var(--leise); text-align: center; }
 
@@ -332,8 +337,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .blatt-griff { display: none; }
   .schleier { display: none; }
   .blatt-kopf h2 { font-size: 30px; }
-  .mini { display: block; margin: 14px -4px 0; border-radius: 16px; background: var(--buehne); padding: 10px 14px; }
-  .mini svg { display: block; width: 100%; height: auto; }
+  .blatt .zu { display: none; }
   .zurueck { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 550; color: var(--leise); margin: -4px 0 10px -4px; padding: 6px 4px; }
   .zurueck svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; }
   .zurueck:hover { color: var(--tinte); }
