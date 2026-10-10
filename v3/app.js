@@ -125,7 +125,7 @@ function zeichneHeute() {
   $('#heute').innerHTML = `
     <div class="heute-kopf">
       <h2 id="heute-titel">Heute, ${langDatum(HEUTE)}</h2>
-      <span class="heute-stand">Stand ${uhr(`${JETZT.getHours()}:${JETZT.getMinutes()}`)} Uhr</span>
+      <span class="heute-stand">Stand ${JETZT.getHours()}:${String(JETZT.getMinutes()).padStart(2, '0')} Uhr</span>
     </div>
     <ul class="heute-liste">
       ${zeilen.map(({ b, z }) => `
@@ -545,6 +545,7 @@ function postenZeile(p) {
 let ansicht = 'korb';
 let zuletztFokus = null;
 function blatt(welches, auf) {
+  if (auf) { clearTimeout(meldungUhr); $('#meldung').classList.remove('an'); }
   if (welches === 'detail') {
     $('#detail').classList.toggle('offen', auf && HANDY.matches);
     if (!auf && HANDY.matches) { gewaehlt = null; zeichneSchwein(); }
@@ -619,7 +620,7 @@ function zeigeKasse(fehler = '') {
           ${tagN.length ? `<label class="wahl"><input type="radio" name="abholung" value="nuernberg">
             <span><b>Verkaufswagen Nürnberg Süd</b><small>${tagDatum(tagN[0].datum)}, an einem Stellplatz</small></span></label>
             <label class="feld" data-nur="nuernberg" hidden>Stellplatz<select name="stellplatz">
-              ${tagN.map((t, i) => `<option value="${i}">${uhr(t.von)} Uhr · ${t.platz}, ${t.ort}</option>`).join('')}</select></label>` : ''}
+              ${tagN.map((t, i) => `<option value="${i}">${uhrVoll(t.von)} Uhr · ${t.platz}</option>`).join('')}</select></label>` : ''}
           ${tagS.map(t => `<label class="wahl"><input type="radio" name="abholung" value="scheinfeld">
             <span><b>Verkaufswagen Scheinfeld</b><small>${tagDatum(t.datum)}, an die Haustür – Uhrzeit fehlt noch</small></span></label>
             <label class="feld" data-nur="scheinfeld" hidden>Deine Adresse in Scheinfeld und Umgebung<input name="haustuer" autocomplete="street-address"></label>`).join('')}
