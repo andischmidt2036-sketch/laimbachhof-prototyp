@@ -44,6 +44,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .punkt { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--frei); flex: none; }
 .punkt.knapp { background: var(--knapp); }
 .punkt.weg { background: transparent; box-shadow: inset 0 0 0 1.5px var(--weg); }
+.punkt.meins { background: var(--glut); }
 
 /* ---------- Kopf: wer, wie voll, wann ---------- */
 .kopf { padding: calc(14px + env(safe-area-inset-top)) var(--rand) 14px; display: grid; gap: 6px; }
@@ -90,6 +91,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .zone { fill: rgba(255, 236, 214, 0); stroke: rgba(255, 238, 220, .0); stroke-width: 2; stroke-linejoin: round; cursor: pointer;
   transition: fill .35s var(--weich), stroke .35s var(--weich); }
 .zone.weg { fill: url(#schraffur); }
+/* Stücke im eigenen Paket: warme Kante – so sieht man am Tier, was schon „deins“ ist */
+.zone.meins { fill: rgba(244, 181, 124, .05); stroke: rgba(244, 181, 124, .8); stroke-width: 2.4; }
 @media (hover: hover) and (pointer: fine) {
   .zone:hover { fill: rgba(255, 228, 196, .11); }
   .zone.weg:hover { fill: url(#schraffur); stroke: rgba(255, 238, 220, .25); }
@@ -100,7 +103,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .hat-wahl .zone:not(.aktiv) { fill: rgba(10, 9, 8, .58); }
 .hat-wahl .zone.weg:not(.aktiv) { fill: url(#schraffur-dunkel); }
 .hat-wahl .schnitte polygon { stroke: rgba(255, 240, 222, .07); }
-.hat-wahl.ganz .zone { fill: rgba(244, 181, 124, .16); }   /* Hack & Bratwurst: kommt vom ganzen Tier */
+/* Hack & Bratwurst kommt vom ganzen Tier: nichts dunkelt ab, alle Schnittlinien leuchten auf */
+.hat-wahl.ganz .zone:not(.weg) { fill: rgba(255, 228, 196, .07); }
+.hat-wahl.ganz .zone.weg { fill: url(#schraffur); }
+/* Stücke im eigenen Paket: warme Kante – so sieht man am Tier, was schon „deins“ ist */
+.zone.meins { fill: rgba(244, 181, 124, .05); stroke: rgba(244, 181, 124, .8); stroke-width: 2.4; }
+.hat-wahl.ganz .schnitte polygon { stroke: rgba(255, 222, 184, .6); }
 
 /* Das gewählte Stück hebt sich heraus: Ausschnitt des Bilds, etwas angehoben, mit Schatten und warmem Licht.
    Zurück bleibt eine dunkle Mulde – wie ein Stück, das man aus dem Tier nimmt. */
@@ -122,6 +130,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .pin::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fff7ee; box-shadow: 0 0 0 3px rgba(255, 247, 238, .14), 0 1px 6px rgba(0, 0, 0, .5); transition: transform .3s var(--weich), background .3s, box-shadow .3s, opacity .3s; }
 .pin.knapp::before { background: #f3b45c; box-shadow: 0 0 0 3px rgba(243, 180, 92, .2), 0 1px 6px rgba(0, 0, 0, .5); }
 .pin.weg::before { background: transparent; box-shadow: inset 0 0 0 1.5px rgba(255, 247, 238, .5); }
+.pin.meins::before { background: var(--glut); box-shadow: 0 0 0 3px rgba(244, 181, 124, .25), 0 1px 6px rgba(0, 0, 0, .5); }
 .pin.aktiv::before { transform: scale(1.25); background: #fff; box-shadow: 0 0 0 5px rgba(255, 226, 196, .25), 0 0 18px rgba(255, 210, 160, .7); }
 .hat-wahl .pin:not(.aktiv)::before { opacity: .45; box-shadow: none; transform: scale(.75); }
 /* Einmal eine feine Welle um jeden Punkt: „hier kann man tippen“ */
@@ -139,6 +148,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .marke:empty { display: none; }
 .marke.weg { color: rgba(255, 247, 238, .62); background: rgba(12, 11, 10, .42); font-weight: 550; }
 .marke.knapp { color: #2a1a06; background: #f3b45c; }
+.marke.meins { color: #2a1a06; background: var(--glut); }
 .hat-wahl .marke { opacity: 0; }
 
 /* Etikett: Name des Stücks über dem Punkt */
@@ -180,6 +190,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .posten-preis { font-size: 14px; font-weight: 550; }
 .posten-preis small { font-weight: 450; color: var(--leise); }
 .posten.knapp .posten-rest { color: #8f5a12; font-weight: 550; }
+.posten.meins .posten-rest { color: #8a5016; font-weight: 600; }
 .posten.weg { background: transparent; box-shadow: 0 0 0 1px var(--linie); }
 .posten.weg .posten-name { color: var(--leise); }
 .posten.aktiv { box-shadow: 0 0 0 2px var(--tinte); }
@@ -218,6 +229,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .vorrat { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 600; padding: 6px 11px; border-radius: 999px; background: rgba(93, 125, 82, .1); color: #3f5a37; white-space: nowrap; }
 .vorrat.knapp { background: rgba(184, 116, 28, .12); color: #7f4f0f; }
 .vorrat.weg { background: rgba(23, 22, 20, .06); color: var(--leise); }
+.vorrat.meins { background: rgba(244, 181, 124, .2); color: #7a4512; }
 
 /* Mengenwahl: große Tasten, Zahl in der Mitte */
 .menge { display: grid; grid-template-columns: 52px 1fr 52px; align-items: center; gap: 8px; margin-top: 14px; padding: 6px; border-radius: 18px; background: rgba(23, 22, 20, .045); }

@@ -105,6 +105,8 @@ function status(t) {
   if (r <= 1.5 || r / t.gesamt < 0.25) return 'knapp';
   return 'frei';
 }
+// Für die Anzeige: ein Stück, dessen Rest komplett im eigenen Paket liegt, ist nicht „vergeben“, sondern „meins“
+const anzeige = t => status(t) === 'weg' && imPaket(t.id) > 0 ? 'meins' : status(t);
 const paketKg = () => rund2(paket.reduce((s, p) => s + p.kg, 0));
 const paketSumme = () => rund2(paket.reduce((s, p) => s + p.kg * teil(p.id).preis, 0));
 function speichern() { try { sessionStorage.setItem('schwein15-paket', JSON.stringify(paket)); } catch (e) { /* privat-Modus: egal */ } }
@@ -218,13 +220,14 @@ function zeichneBuehne() {
   lw.classList.toggle('ganz', !!(t && t.ganz));
   lw.querySelectorAll('.zone').forEach(z => {
     const st = status(teil(z.dataset.teil));
-    z.classList.toggle('weg', st === 'weg');
+    z.classList.toggle('weg', st === 'weg' && !imPaket(z.dataset.teil));
+    z.classList.toggle('meins', imPaket(z.dataset.teil) > 0);
     z.classList.toggle('aktiv', z.dataset.teil === gewaehlt);
   });
   lw.querySelectorAll('.pin').forEach(p => {
     const tt = teil(p.dataset.teil);
     const st = status(tt);
-    p.className = `pin ${st}${tt.id === gewaehlt ? ' aktiv' : ''}`;
+    p.className = `pin ${anzeige(tt)}${tt.id === gewaehlt ? ' aktiv' : ''}`;
     p.setAttribute('aria-label', `${tt.name}, ${st === 'weg' ? 'vergeben' : `${euro(tt.preis)} je kg, ${vorratText(tt)}`}`);
     p.setAttribute('aria-pressed', String(tt.id === gewaehlt));
   });
@@ -232,8 +235,10 @@ function zeichneBuehne() {
   lw.querySelectorAll('.marke').forEach(m => {
     const tt = teil(m.dataset.marke);
     const st = status(tt);
-    m.className = `marke ${st}`;
-    m.textContent = st === 'weg' ? 'vergeben' : st === 'knapp' ? (tt.stueck ? `noch ${mengeText(tt, rest(tt)).gross}` : vorratText(tt)) : '';
+    const an = imPaket(tt.id) > 0 ? 'meins' : st;
+    m.className = `marke ${an}`;
+    m.textContent = an === 'meins' ? 'im Paket' : st === 'weg' ? 'vergeben'
+      : st === 'knapp' ? (tt.stueck ? `noch ${mengeText(tt, rest(tt)).gross}` : vorratText(tt)) : '';
   });
   // Herausheben: dieselbe Form wie die Zone – Bildausschnitt, Licht und Kante
   const form = t && BILD.zonen[t.id] ? BILD.zonen[t.id] : '';
@@ -267,14 +272,16 @@ function leuchteAuf() {
 // ---------- Liste: alle Stücke, Zweitweg zum Tippen aufs Tier ----------
 function zeichneListe() {
   $('#liste').innerHTML = TEILE.map(t => {
-    const st = status(t);
+    const st = anzeige(t);
     const drin = imPaket(t.id);
+    // „meins“: der ganze Rest liegt im eigenen Paket – dann steht das statt „vergeben“ da
+    const zeile = st === 'meins' ? `${kg(drin)} in deinem Paket` : vorratText(t);
     return `<li><button type="button" class="posten ${st}${t.id === gewaehlt ? ' aktiv' : ''}" data-teil="${t.id}"
-        aria-label="${t.name}, ${st === 'weg' ? 'vergeben' : `${euro(t.preis)} je kg, ${vorratText(t)}`}">
+        aria-label="${t.name}, ${st === 'weg' ? 'vergeben' : st === 'meins' ? zeile : `${euro(t.preis)} je kg, ${vorratText(t)}`}">
       <span class="posten-name">${t.name}</span>
       ${st === 'weg' ? '' : `<span class="posten-preis">${euro(t.preis)}<small> /kg</small></span>`}
-      <span class="posten-zeile"><i class="punkt ${st}"></i><span class="posten-rest">${vorratText(t)}</span></span>
-      ${drin ? `<span class="posten-paket">${kg(drin)} im Paket</span>` : ''}
+      <span class="posten-zeile"><i class="punkt ${st}"></i><span class="posten-rest">${zeile}</span></span>
+      ${drin && st !== 'meins' ? `<span class="posten-paket">${kg(drin)} im Paket</span>` : ''}
     </button></li>`;
   }).join('');
 }
@@ -296,6 +303,15 @@ function zeigeTeil(id) {
   const t = teil(id);
   const st = status(t);
   ansicht = 'teil';
+  if (st === 'weg' && imPaket(t.id) > 0) {
+    blatt(`${kopfZeile(t.beiname, t.name)}
+      <p class="wo">${t.wo}</p>
+      <ul class="eignung">${t.fuer.map(f => `<li>${f}</li>`).join('')}</ul>
+      <div class="preisblock"><p class="vorrat meins"><i class="punkt meins"></i>${kg(imPaket(t.id))} in deinem Paket</p></div>
+      <button type="button" class="knopf-haupt" data-paket-zeigen>Paket ansehen</button>
+      <p class="klein">Mehr gibt es davon von Schwein Nr. 15 nicht.</p>`);
+    return;
+  }
   if (st === 'weg') {
     blatt(`${kopfZeile(t.beiname, t.name)}
       <p class="wo">${t.wo}</p>
@@ -455,7 +471,7 @@ function alles() {
 
 // ---------- Ereignisse (ein Hörer je Bereich) ----------
 document.addEventListener('click', e => {
-  const ziel = e.target.closest('[data-teil], [data-zu], [data-zurueck], [data-menge], [data-ins-paket], [data-entfernen], [data-reservieren], [data-neu], [data-vormerken], #paketleiste');
+  const ziel = e.target.closest('[data-teil], [data-zu], [data-zurueck], [data-menge], [data-ins-paket], [data-entfernen], [data-reservieren], [data-neu], [data-vormerken], [data-paket-zeigen], #paketleiste');
   if (!ziel) {
     // Handy: Tipp neben das offene Blatt schließt es (wie ein Schleier, nur unsichtbar)
     if (ansicht && !LAPTOP.matches && !e.target.closest('#blatt')) blattZu();
@@ -478,7 +494,7 @@ document.addEventListener('click', e => {
     if (paket.length) zeigePaket(); else blattZu();
     return;
   }
-  if (ziel.matches('#paketleiste')) { gewaehlt = null; zeigePaket(); alles(); return; }
+  if (ziel.matches('#paketleiste, [data-paket-zeigen]')) { gewaehlt = null; zeigePaket(); alles(); return; }
   if (ziel.matches('[data-reservieren]')) { zeigeFertig(); return; }
   if (ziel.matches('[data-neu]')) { paket = []; speichern(); blattZu(); return; }
   if (ziel.matches('[data-vormerken]')) { melde('Demo – vorgemerkt wird hier nichts.'); }
