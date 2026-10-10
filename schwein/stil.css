@@ -1,0 +1,359 @@
+/* Laimbachhof – Demo „Schwein Nr. 15“: Teilstücke wählen
+   Aufbau: Schrift → Design-Tokens → Grundlagen → Kopf → Bühne (Schwein) → Liste → Blatt → Paketleiste → Laptop.
+   Handy zuerst: die Grundregeln gelten fürs Handy, @media (min-width: 1000px) baut daraus die Laptop-Ansicht. */
+
+/* ---------- Schrift (lokal, kein Google-CDN) ---------- */
+@font-face { font-family: "Inter"; src: url("schrift/inter.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
+
+/* ---------- Design-Tokens: hier ändert man den Look an einer Stelle ---------- */
+:root {
+  --papier: #f4f1ec;          /* warmes Off-White, Seitenhintergrund */
+  --karte: #fffdf9;
+  --tinte: #171614;           /* Text, fast schwarz */
+  --leise: #6e6961;           /* Nebentext */
+  --linie: rgba(23, 22, 20, .09);
+  --buehne: #1a1815;          /* dunkle Bühne fürs schwarze Schwein */
+  --buehne-licht: #34302a;    /* Lichtkegel in der Mitte der Bühne */
+  --glut: #f4b57c;            /* das Leuchten eines gewählten Stücks */
+  --frei: #5d7d52;
+  --knapp: #b8741c;
+  --weg: #a29c93;
+  --schrift: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --rund: 24px;
+  --rund-klein: 14px;
+  --rand: 16px;               /* Seitenrand am Handy */
+  --feder: cubic-bezier(.32, .72, 0, 1);   /* wie iOS-Blätter: schnell los, weich aus */
+  --weich: cubic-bezier(.2, .7, .2, 1);
+}
+
+/* ---------- Grundlagen ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--papier); color: var(--tinte);
+  font: 400 16px/1.5 var(--schrift); font-feature-settings: "cv11", "ss01"; font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+h1, h2, h3, p { margin: 0; }
+ul { margin: 0; padding: 0; list-style: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid #3b6fd8; outline-offset: 2px; border-radius: 8px; }
+[hidden] { display: none !important; }
+
+/* Status-Punkt: frei / knapp / vergeben */
+.punkt { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--frei); flex: none; }
+.punkt.knapp { background: var(--knapp); }
+.punkt.weg { background: transparent; box-shadow: inset 0 0 0 1.5px var(--weg); }
+
+/* ---------- Kopf: wer, wie voll, wann ---------- */
+.kopf { padding: calc(14px + env(safe-area-inset-top)) var(--rand) 14px; display: grid; gap: 6px; }
+.kopf-hof { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--leise); display: flex; align-items: center; gap: 8px; }
+.demo-marke { letter-spacing: .04em; text-transform: none; font-weight: 600; font-size: 11px; color: var(--leise); border: 1px solid var(--linie); border-radius: 999px; padding: 1px 8px; }
+.kopf-titel { font-size: 26px; line-height: 1.12; font-weight: 680; letter-spacing: -.025em; }
+.kopf-rasse { display: block; font-weight: 450; color: var(--leise); letter-spacing: -.015em; }
+.kopf-trenner { display: none; color: var(--leise); font-weight: 400; }
+.fortschritt { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.balken { position: relative; flex: 1; height: 6px; border-radius: 3px; background: rgba(23, 22, 20, .1); overflow: hidden; max-width: 260px; }
+.balken i { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 3px; transition: width .6s var(--weich), left .6s var(--weich); }
+.balken-vergeben { background: var(--tinte); }
+.balken-dein { background: var(--glut); }
+.fortschritt-text { font-size: 14px; font-weight: 550; white-space: nowrap; }
+.fortschritt-text .dein { color: #a3601f; font-weight: 550; }
+.termine { font-size: 13.5px; color: var(--leise); line-height: 1.45; }
+.termine b { color: var(--tinte); font-weight: 550; }
+.termine span { white-space: nowrap; }
+
+/* ---------- Bühne: das Schwein im Lichtkegel ---------- */
+.werkbank { padding: 0 var(--rand); }
+.buehne {
+  position: relative; border-radius: var(--rund); overflow: hidden; isolation: isolate;
+  background:
+    radial-gradient(70% 62% at 50% 44%, var(--buehne-licht) 0%, rgba(52, 48, 42, 0) 70%),
+    linear-gradient(180deg, #211e1b 0%, var(--buehne) 62%, #121110 100%);
+  padding: 22px 10px 10px;
+}
+/* feines Korn gegen „digitale“ Flächen – kaum sichtbar, aber die Bühne wirkt wie Papier/Studio */
+.buehne::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: .07; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='k'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23k)'/%3E%3C/svg%3E");
+}
+.leinwand { position: relative; width: 100%; margin: 0 auto; max-width: 1180px; }
+/* Bodenschatten: das Tier steht, statt zu schweben */
+.leinwand::before {
+  content: ""; position: absolute; left: 12%; right: 10%; bottom: -1.5%; height: 9%; z-index: 0;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0) 70%);
+  pointer-events: none;
+}
+.tier-svg { position: relative; z-index: 1; display: block; width: 100%; height: auto; overflow: visible; }
+/* Beine laufen unten weich ins Dunkel aus (die Vorlage ist dort unscharf) */
+.tier { -webkit-mask-image: linear-gradient(180deg, #000 86%, rgba(0, 0, 0, .25) 100%); mask-image: linear-gradient(180deg, #000 86%, rgba(0, 0, 0, .25) 100%); }
+
+/* Klickzonen: unsichtbar, bis man sie berührt */
+.zone { fill: rgba(255, 236, 214, 0); stroke: rgba(255, 238, 220, .0); stroke-width: 2; stroke-linejoin: round; cursor: pointer;
+  transition: fill .35s var(--weich), stroke .35s var(--weich); }
+.zone.weg { fill: url(#schraffur); }
+@media (hover: hover) and (pointer: fine) {
+  .zone:hover { fill: rgba(255, 228, 196, .11); }
+  .zone.weg:hover { fill: url(#schraffur); stroke: rgba(255, 238, 220, .25); }
+}
+/* Schnittlinien wie mit Kreide: zeigen, dass das Tier aus Stücken besteht */
+.schnitte polygon { fill: none; stroke: rgba(255, 240, 222, .2); stroke-width: 1.8; stroke-dasharray: 2 7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; transition: stroke .35s; }
+/* Sobald ein Stück gewählt ist, tritt der Rest zurück */
+.hat-wahl .zone:not(.aktiv) { fill: rgba(10, 9, 8, .52); }
+.hat-wahl .zone.weg:not(.aktiv) { fill: url(#schraffur-dunkel); }
+.hat-wahl .schnitte polygon { stroke: rgba(255, 240, 222, .07); }
+.hat-wahl.ganz .zone { fill: rgba(244, 181, 124, .16); }   /* Hack & Bratwurst: kommt vom ganzen Tier */
+
+/* Das Leuchten: warmes Licht auf dem gewählten Stück (screen hellt auf, ohne die Fellstruktur zu verlieren) */
+.glut { fill: url(#glut-verlauf); mix-blend-mode: screen; opacity: 0; pointer-events: none; transition: opacity .3s var(--weich); }
+.glut-schein { fill: none; stroke: var(--glut); stroke-width: 10; opacity: 0; filter: url(#weich); pointer-events: none; }
+.glut-rand { fill: none; stroke: #ffe2c4; stroke-width: 2.4; stroke-linejoin: round; opacity: 0; pointer-events: none; }
+.hat-wahl .glut { opacity: .62; }
+.hat-wahl .glut-schein { opacity: .55; }
+.hat-wahl .glut-rand { opacity: .9; }
+.ganz .glut, .ganz .glut-schein, .ganz .glut-rand { opacity: 0 !important; }
+.aufleuchten .glut, .aufleuchten .glut-schein, .aufleuchten .glut-rand { animation: aufleuchten .5s var(--weich); }
+@keyframes aufleuchten { from { opacity: 0; } }
+
+/* Punkte auf dem Tier: Tippziel 44 px, sichtbar nur ein kleiner Lichtpunkt */
+.pins { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.pin { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; pointer-events: auto; display: grid; place-items: center; }
+.pin::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fff7ee; box-shadow: 0 0 0 3px rgba(255, 247, 238, .14), 0 1px 6px rgba(0, 0, 0, .5); transition: transform .3s var(--weich), background .3s, box-shadow .3s, opacity .3s; }
+.pin.knapp::before { background: #f3b45c; box-shadow: 0 0 0 3px rgba(243, 180, 92, .2), 0 1px 6px rgba(0, 0, 0, .5); }
+.pin.weg::before { background: transparent; box-shadow: inset 0 0 0 1.5px rgba(255, 247, 238, .5); }
+.pin.aktiv::before { transform: scale(1.25); background: #fff; box-shadow: 0 0 0 5px rgba(255, 226, 196, .25), 0 0 18px rgba(255, 210, 160, .7); }
+.hat-wahl .pin:not(.aktiv)::before { opacity: .3; }
+.pin.anstupsen::before { animation: atmen 2.4s var(--weich) 2; }
+@keyframes atmen { 50% { box-shadow: 0 0 0 9px rgba(255, 247, 238, .18), 0 1px 6px rgba(0, 0, 0, .5); } }
+
+/* Etikett: Name des Stücks über dem Punkt */
+.etikett {
+  position: absolute; z-index: 3; pointer-events: none; white-space: nowrap;
+  transform: translate(-50%, calc(-100% - 16px)); opacity: 0; transition: opacity .2s, transform .25s var(--weich);
+  background: rgba(255, 253, 249, .96); color: var(--tinte); border-radius: 999px; padding: 6px 12px 6px 10px;
+  font-size: 13px; font-weight: 600; letter-spacing: -.005em; box-shadow: 0 6px 20px rgba(0, 0, 0, .35);
+  display: flex; align-items: center; gap: 7px;
+}
+.etikett.an { opacity: 1; transform: translate(-50%, calc(-100% - 20px)); }
+.etikett.links { transform: translate(-14px, calc(-100% - 20px)); }
+.etikett.rechts { transform: translate(calc(-100% + 14px), calc(-100% - 20px)); }
+.etikett small { font-weight: 500; color: var(--leise); font-size: 12.5px; }
+
+.buehne-fuss { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 8px 4px; color: rgba(255, 247, 238, .62); font-size: 13px; }
+.buehne-hinweis { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.buehne-hinweis::before { content: ""; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid currentColor; opacity: .7; }
+.legende { display: flex; gap: 10px; }
+.legende span { display: inline-flex; align-items: center; gap: 6px; }
+.legende .punkt.frei { background: #fff7ee; }
+.legende .punkt.knapp { background: #f3b45c; }
+.legende .punkt.weg { box-shadow: inset 0 0 0 1.5px rgba(255, 247, 238, .6); }
+
+/* ---------- Liste aller Stücke (Zweitweg zum Tippen aufs Tier) ---------- */
+.seite { padding: 22px 0 120px; }
+.liste-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 2px 10px; }
+.liste-kopf h2 { font-size: 17px; font-weight: 650; letter-spacing: -.01em; }
+.liste-kopf p { font-size: 12.5px; color: var(--leise); }
+.liste { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.posten {
+  width: 100%; min-height: 64px; text-align: left; display: grid; gap: 1px; padding: 11px 12px 10px;
+  background: var(--karte); border-radius: var(--rund-klein); box-shadow: 0 0 0 1px var(--linie);
+  transition: box-shadow .2s, transform .2s var(--weich), background .2s;
+}
+.posten:active { transform: scale(.98); }
+.posten-name { font-size: 15px; font-weight: 600; letter-spacing: -.01em; line-height: 1.25; }
+.posten-zeile { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--leise); }
+.posten-zeile .trenner { opacity: .5; }
+.posten.knapp .posten-rest { color: #8f5a12; font-weight: 550; }
+.posten.weg { background: transparent; box-shadow: 0 0 0 1px var(--linie); }
+.posten.weg .posten-name { color: var(--leise); }
+.posten.aktiv { box-shadow: 0 0 0 2px var(--tinte); }
+.posten-paket { font-size: 12px; font-weight: 600; color: #8a5016; margin-top: 2px; }
+
+/* ---------- Blatt: Detail eines Stücks oder das Paket ---------- */
+/* Handy: Bottom-Sheet, kommt von unten */
+.blatt {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; max-height: 86dvh; overflow: auto; overscroll-behavior: contain;
+  background: var(--karte); border-radius: 26px 26px 0 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, .18);
+  padding: 8px 20px calc(18px + env(safe-area-inset-bottom));
+  transform: translateY(100%); transition: transform .45s var(--feder);
+}
+.blatt.offen { transform: none; }
+.blatt-griff { width: 38px; height: 5px; border-radius: 3px; background: rgba(23, 22, 20, .16); margin: 0 auto 10px; }
+.schleier { position: fixed; inset: 0; z-index: 40; background: rgba(15, 14, 12, .1); opacity: 0; transition: opacity .35s; }
+.schleier.an { opacity: 1; }
+
+.blatt-kopf { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.blatt-vorzeile { font-size: 12.5px; font-weight: 550; color: var(--leise); letter-spacing: .01em; }
+.blatt-kopf h2 { font-size: 26px; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; margin-top: 1px; }
+.zu { flex: none; width: 36px; height: 36px; margin: -2px -6px 0 0; border-radius: 50%; background: rgba(23, 22, 20, .06); display: grid; place-items: center; }
+.zu svg { width: 14px; height: 14px; stroke: var(--tinte); stroke-width: 2.2; stroke-linecap: round; fill: none; }
+/* Rand für ein 44-px-Tippziel um den 36-px-Kreis */
+.zu { position: relative; }
+.zu::after { content: ""; position: absolute; inset: -4px; }
+
+.mini { display: none; }
+.wo { margin-top: 10px; font-size: 15px; line-height: 1.45; color: #3e3a35; }
+.eignung { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.eignung li { font-size: 13px; font-weight: 550; padding: 5px 11px; border-radius: 999px; background: rgba(23, 22, 20, .055); }
+.tipp { margin-top: 12px; font-size: 14px; line-height: 1.45; color: #3e3a35; padding: 11px 13px; border-radius: 12px; background: #f5efe6; }
+.tipp b { display: block; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: #8a5016; margin-bottom: 2px; font-weight: 650; }
+
+.preisblock { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--linie); }
+.preis { font-size: 24px; font-weight: 700; letter-spacing: -.02em; }
+.preis small { font-size: 15px; font-weight: 550; color: var(--leise); letter-spacing: 0; }
+.preis-hinweis { display: block; font-size: 12.5px; color: var(--leise); margin-top: 1px; }
+.vorrat { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 600; padding: 6px 11px; border-radius: 999px; background: rgba(93, 125, 82, .1); color: #3f5a37; white-space: nowrap; }
+.vorrat.knapp { background: rgba(184, 116, 28, .12); color: #7f4f0f; }
+.vorrat.weg { background: rgba(23, 22, 20, .06); color: var(--leise); }
+
+/* Mengenwahl: große Tasten, Zahl in der Mitte */
+.menge { display: grid; grid-template-columns: 52px 1fr 52px; align-items: center; gap: 8px; margin-top: 14px; padding: 6px; border-radius: 18px; background: rgba(23, 22, 20, .045); }
+.menge button { width: 52px; height: 52px; border-radius: 14px; background: var(--karte); box-shadow: 0 1px 2px rgba(0, 0, 0, .08), 0 0 0 1px var(--linie); display: grid; place-items: center; transition: transform .15s var(--weich), opacity .2s; }
+.menge button:active { transform: scale(.92); }
+.menge button[disabled] { opacity: .35; pointer-events: none; }
+.menge svg { width: 18px; height: 18px; stroke: var(--tinte); stroke-width: 2.2; stroke-linecap: round; }
+.menge output { text-align: center; display: grid; line-height: 1.15; }
+.menge output b { font-size: 21px; font-weight: 700; letter-spacing: -.02em; }
+.menge output small { font-size: 12.5px; color: var(--leise); }
+.menge output.tick b { animation: tick .25s var(--weich); }
+@keyframes tick { 40% { transform: scale(1.08); } }
+
+.knopf-haupt {
+  width: 100%; min-height: 54px; margin-top: 12px; border-radius: 16px; background: var(--tinte); color: #fff;
+  font-size: 16.5px; font-weight: 620; letter-spacing: -.01em; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform .15s var(--weich), background .2s;
+}
+.knopf-haupt:hover { background: #000; }
+.knopf-haupt:active { transform: scale(.98); }
+.knopf-haupt span { font-weight: 500; opacity: .75; }
+.knopf-zweit { width: 100%; min-height: 50px; margin-top: 12px; border-radius: 16px; box-shadow: inset 0 0 0 1.5px rgba(23, 22, 20, .16); font-weight: 600; font-size: 15.5px; }
+.klein { margin-top: 10px; font-size: 12px; line-height: 1.45; color: var(--leise); text-align: center; }
+
+/* Paket im Blatt */
+.paket-liste { margin-top: 14px; border-top: 1px solid var(--linie); }
+.paket-liste li { display: grid; grid-template-columns: 1fr auto auto 44px; align-items: center; gap: 10px; min-height: 56px; border-bottom: 1px solid var(--linie); font-size: 15px; }
+.paket-liste .p-name { font-weight: 600; }
+.paket-liste .p-name small { display: block; font-weight: 450; font-size: 12.5px; color: var(--leise); }
+.paket-liste .p-kg { color: var(--leise); }
+.paket-liste .p-preis { font-weight: 600; text-align: right; min-width: 72px; }
+.weg-knopf { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; }
+.weg-knopf svg { width: 16px; height: 16px; stroke: var(--leise); stroke-width: 2; fill: none; stroke-linecap: round; }
+.weg-knopf:hover svg { stroke: var(--tinte); }
+.paket-summe-zeile { display: flex; justify-content: space-between; align-items: baseline; margin-top: 14px; }
+.paket-summe-zeile span { color: var(--leise); font-size: 14.5px; }
+.paket-summe-zeile b { font-size: 24px; font-weight: 700; letter-spacing: -.02em; }
+.abholung { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: #f5efe6; font-size: 14px; line-height: 1.4; }
+.abholung svg { width: 18px; height: 18px; flex: none; margin-top: 1px; stroke: #8a5016; stroke-width: 1.8; fill: none; }
+.leer { margin-top: 18px; color: var(--leise); font-size: 15px; }
+
+/* Abschluss: Demo-Ende */
+.fertig { text-align: center; padding: 18px 4px 4px; }
+.haken { width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 50%; background: var(--tinte); display: grid; place-items: center; animation: auftauchen .5s var(--feder); }
+.haken svg { width: 30px; height: 30px; stroke: #fff; stroke-width: 2.6; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; animation: zeichnen .45s .2s var(--weich) forwards; }
+@keyframes auftauchen { from { transform: scale(.6); opacity: 0; } }
+@keyframes zeichnen { to { stroke-dashoffset: 0; } }
+.fertig h2 { font-size: 24px; font-weight: 700; letter-spacing: -.02em; }
+.demo-hinweis { display: inline-block; margin-top: 10px; font-weight: 650; font-size: 15px; padding: 6px 12px; border-radius: 999px; background: #f5efe6; color: #7a4512; }
+.fertig p { margin-top: 10px; color: #3e3a35; font-size: 15px; line-height: 1.5; }
+
+/* ---------- Schwebende Paketleiste ---------- */
+.paketleiste {
+  position: fixed; z-index: 30; left: var(--rand); right: var(--rand); bottom: calc(12px + env(safe-area-inset-bottom));
+  display: flex; align-items: center; gap: 12px; min-height: 62px; padding: 9px 14px 9px 10px; text-align: left;
+  border-radius: 20px; color: #fff; background: rgba(23, 22, 20, .9);
+  -webkit-backdrop-filter: saturate(1.6) blur(18px); backdrop-filter: saturate(1.6) blur(18px);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .28), inset 0 0 0 1px rgba(255, 255, 255, .06);
+  animation: hochfahren .5s var(--feder);
+}
+@keyframes hochfahren { from { transform: translateY(120%); } }
+.paket-zahl { flex: none; width: 42px; height: 42px; border-radius: 12px; background: var(--glut); color: var(--tinte); display: grid; place-items: center; font-weight: 750; font-size: 17px; }
+.paket-zahl.huepf { animation: huepf .45s var(--feder); }
+@keyframes huepf { 30% { transform: scale(1.22) rotate(-6deg); } }
+.paket-text { flex: 1; min-width: 0; display: grid; line-height: 1.25; }
+.paket-text b { font-size: 15px; font-weight: 620; }
+.paket-text span { font-size: 13px; color: rgba(255, 255, 255, .66); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.paket-summe { font-weight: 650; font-size: 16px; }
+.paket-pfeil { width: 18px; height: 18px; stroke: rgba(255, 255, 255, .6); stroke-width: 2; fill: none; stroke-linecap: round; flex: none; }
+.blatt-offen .paketleiste { opacity: 0; pointer-events: none; transform: translateY(20px); transition: opacity .2s, transform .3s; }
+
+/* Kurze Meldung (Toast) */
+.meldung { position: fixed; z-index: 60; left: 50%; top: calc(14px + env(safe-area-inset-top)); transform: translate(-50%, -150%); background: var(--tinte); color: #fff; font-size: 14px; font-weight: 550; padding: 10px 16px; border-radius: 999px; box-shadow: 0 10px 30px rgba(0, 0, 0, .25); transition: transform .4s var(--feder); max-width: calc(100% - 32px); text-align: center; }
+.meldung.an { transform: translate(-50%, 0); }
+
+.fuss { padding: 0 var(--rand) 100px; font-size: 12px; line-height: 1.5; color: var(--leise); text-align: center; }
+
+/* Handy quer und kleine Tablets: Liste dreispaltig */
+@media (min-width: 600px) and (max-width: 999px) {
+  .liste { grid-template-columns: repeat(3, 1fr); }
+  .paketleiste { left: 50%; right: auto; width: 520px; margin-left: -260px; }
+  .blatt { left: 50%; right: auto; width: 560px; margin-left: -280px; }
+}
+
+/* ---------- Laptop: Schwein links groß, rechts die Tafel ---------- */
+@media (min-width: 1000px) {
+  :root { --seite-b: 400px; --abstand: 24px; }
+  .kopf {
+    max-width: 1480px; margin: 0 auto; padding: 22px var(--abstand) 18px;
+    grid-template-columns: 1fr auto; grid-template-areas: "hof hof" "titel fortschritt" "termine fortschritt"; column-gap: 40px; row-gap: 4px; align-items: end;
+  }
+  .kopf-hof { grid-area: hof; }
+  .kopf-titel { grid-area: titel; font-size: 34px; }
+  .kopf-rasse, .kopf-trenner { display: inline; }
+  .termine { grid-area: termine; font-size: 14.5px; }
+  .fortschritt { grid-area: fortschritt; flex-direction: column; align-items: flex-end; gap: 8px; margin: 0; align-self: end; }
+  .balken { width: 280px; flex: none; }
+  .fortschritt-text { font-size: 15px; }
+
+  .werkbank {
+    max-width: 1480px; margin: 0 auto; padding: 0 var(--abstand) var(--abstand);
+    display: grid; grid-template-columns: minmax(0, 1fr) var(--seite-b); gap: var(--abstand); align-items: stretch;
+  }
+  .buehne { display: flex; flex-direction: column; justify-content: center; padding: 48px 48px 22px; min-height: 560px; border-radius: 28px; }
+  .leinwand { flex: none; width: 100%; }
+  .buehne-fuss { padding: 26px 0 0; font-size: 13.5px; }
+
+  .seite { position: relative; padding: 0; background: var(--karte); border-radius: 28px; box-shadow: 0 0 0 1px var(--linie); overflow: hidden; display: flex; flex-direction: column; }
+  .liste-kopf { margin: 0; padding: 22px 22px 10px; }
+  .liste { grid-template-columns: 1fr; gap: 0; padding: 0 10px 12px; overflow: auto; }
+  .posten { min-height: 0; grid-template-columns: 1fr auto; grid-template-areas: "name preis" "zeile paket"; align-items: center; column-gap: 12px; padding: 12px 12px; border-radius: 12px; background: transparent; box-shadow: none; }
+  .posten:hover { background: rgba(23, 22, 20, .04); }
+  .posten-name { grid-area: name; }
+  .posten-zeile { grid-area: zeile; }
+  .posten-preis-rechts { grid-area: preis; font-size: 14.5px; font-weight: 600; }
+  .posten-paket { grid-area: paket; margin: 0; text-align: right; }
+  .posten.aktiv { background: rgba(244, 181, 124, .16); box-shadow: none; }
+  .posten.weg { box-shadow: none; }
+  .hat-paket .liste { padding-bottom: 96px; }
+
+  /* Blatt liegt am Laptop über der Liste in der rechten Tafel */
+  .blatt { position: absolute; inset: 0; max-height: none; border-radius: 0; box-shadow: none; padding: 22px 24px 24px; transform: translateX(24px); opacity: 0; transition: transform .4s var(--feder), opacity .25s; }
+  .blatt.offen { transform: none; opacity: 1; }
+  .hat-paket .blatt { padding-bottom: 100px; }
+  .blatt-griff { display: none; }
+  .schleier { display: none; }
+  .blatt-kopf h2 { font-size: 30px; }
+  .mini { display: block; margin: 14px -4px 0; border-radius: 16px; background: var(--buehne); padding: 10px 14px; }
+  .mini svg { display: block; width: 100%; height: auto; }
+  .zurueck { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 550; color: var(--leise); margin: -4px 0 10px -4px; padding: 6px 4px; }
+  .zurueck svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; }
+  .zurueck:hover { color: var(--tinte); }
+
+  /* Paketleiste schwebt unten in der rechten Tafel */
+  .paketleiste { left: auto; right: max(calc(var(--abstand) + 12px), calc((100vw - 1480px) / 2 + var(--abstand) + 12px)); width: calc(var(--seite-b) - 24px); bottom: calc(var(--abstand) + 12px); }
+  .blatt-offen .paketleiste { opacity: 1; pointer-events: auto; transform: none; }
+  .paket-offen .paketleiste { opacity: 0; pointer-events: none; }
+  .fuss { padding: 0 var(--abstand) 24px; text-align: left; max-width: 1480px; margin: 0 auto; }
+}
+/* Am Laptop nur „Alle Stücke“-Rücksprung, am Handy schließt das Blatt mit × */
+@media (max-width: 999px) { .zurueck, .nur-laptop { display: none; } }
+@media (min-width: 1000px) { .nur-handy { display: none; } }
+
+/* Großer, hoher Bildschirm: alles auf eine Bildschirmseite */
+@media (min-width: 1000px) and (min-height: 760px) {
+  .werkbank { height: calc(100dvh - var(--kopf-h, 128px)); min-height: 600px; }
+  .buehne { min-height: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

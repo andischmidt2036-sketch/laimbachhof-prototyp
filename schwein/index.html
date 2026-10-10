@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f4f1ec">
+  <title>Schwein Nr. 15 · Laimbachhof</title>
+  <meta name="description" content="Demo: Teilstücke von Schwein Nr. 15 wählen – Steigerwälder Schwarzerle vom Laimbachhof.">
+  <link rel="icon" href="data:,">
+  <link rel="preload" href="schrift/inter.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="bilder/schwein.webp" as="image" type="image/webp">
+  <link rel="stylesheet" href="stil.css">
+</head>
+<body>
+
+<!-- Demo-Seite: nur die Teilstückwahl von einem Schwein. Nichts wird bestellt, gespeichert oder verschickt. -->
+
+<header class="kopf">
+  <p class="kopf-hof">Laimbachhof <span class="demo-marke">Demo</span></p>
+  <h1 class="kopf-titel">Schwein Nr. 15<span class="kopf-trenner"> · </span><span class="kopf-rasse">Steigerwälder Schwarzerle</span></h1>
+  <div class="fortschritt">
+    <div class="balken" id="balken" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Schwein Nr. 15 vergeben">
+      <i class="balken-vergeben"></i><i class="balken-dein"></i>
+    </div>
+    <p class="fortschritt-text" id="fortschritt-text">zu – % vergeben</p>
+  </div>
+  <p class="termine" id="termine"></p>
+</header>
+
+<main class="werkbank">
+
+  <!-- Bühne: das Schwein. Bild + Klickzonen + Punkte, alles in app.js gezeichnet. -->
+  <section class="buehne" aria-label="Schwein Nr. 15 – tippe ein Teilstück an">
+    <div class="leinwand" id="leinwand"></div>
+    <div class="buehne-fuss">
+      <p class="buehne-hinweis" id="hinweis">Tippe auf ein Stück</p>
+      <p class="legende" aria-hidden="true">
+        <span><i class="punkt frei"></i>frei</span>
+        <span><i class="punkt knapp"></i>knapp</span>
+        <span><i class="punkt weg"></i>vergeben</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- Seite: am Laptop rechts neben dem Schwein, am Handy darunter -->
+  <section class="seite" id="seite">
+    <div class="liste-kopf">
+      <h2>Alle Teilstücke</h2>
+      <p>Preise je kg · <span id="tagespreis-datum"></span></p>
+    </div>
+    <ul class="liste" id="liste" aria-label="Teilstücke von Schwein Nr. 15"></ul>
+
+    <!-- Blatt: Teilstück im Detail oder das Paket. Handy: Bottom-Sheet. Laptop: liegt über der Liste. -->
+    <div class="blatt" id="blatt" role="dialog" aria-modal="false" aria-labelledby="blatt-titel" hidden>
+      <div class="blatt-griff" aria-hidden="true"></div>
+      <div class="blatt-inhalt" id="blatt-inhalt"></div>
+    </div>
+  </section>
+</main>
+
+<p class="fuss">Demo mit Beispieldaten – keine echte Bestellung. Alle Preise inkl. MwSt.<br>
+  Schweinebild: Platzhalter nach Encyclopædia Britannica (1911), gemeinfrei, bearbeitet.</p>
+
+<!-- Schwebende Paketleiste: erscheint, sobald etwas im Paket liegt -->
+<button type="button" class="paketleiste" id="paketleiste" hidden aria-label="Paket ansehen">
+  <span class="paket-zahl" id="paket-zahl">0</span>
+  <span class="paket-text">
+    <b>Dein Paket</b>
+    <span id="paket-zeile"></span>
+  </span>
+  <span class="paket-summe" id="paket-summe"></span>
+  <svg class="paket-pfeil" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+</button>
+
+<div class="schleier" id="schleier" hidden></div>
+<div class="meldung" id="meldung" role="status" aria-live="polite"></div>
+
+<script src="bilder/schwein-bild.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
