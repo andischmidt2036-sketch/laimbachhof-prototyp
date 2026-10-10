@@ -363,6 +363,8 @@ function waehle(id) {
   menge = Math.min(t.schritt >= 0.5 ? 1 : 0.5, Math.max(t.schritt, restKg(t)));
   zeichneSchwein();
   if (HANDY.matches) blatt('detail', true);
+  // Laptop: liegt der Reservieren-Knopf unter dem Bildschirmrand, so wenig wie nötig nachrücken
+  else { const k = $('#detail [data-reservieren]') || $('#detail'); k.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
 }
 function zeichneSchwein() { zeichneLeinwand(); zeichneListe(); zeichneDetail(); zeichneTier(); }
 

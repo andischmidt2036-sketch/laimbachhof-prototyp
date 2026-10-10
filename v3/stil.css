@@ -237,7 +237,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .detail.offen { transform: none; visibility: visible; }
 }
 .griff { width: 40px; height: 5px; border-radius: 3px; background: var(--linie); margin: 4px auto 10px; }
-@media (min-width: 900px) { .detail .griff { display: none; } .detail .zu-knopf { display: none; } }
+@media (min-width: 900px) { .detail .griff { display: none; } .detail .zu-knopf { display: none; } .detail .mini { display: none; } }
 .detail-leer h3 { font-size: 19px; }
 .detail-leer p { margin-top: 8px; color: var(--leise); }
 .detail-kopf { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
@@ -373,7 +373,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 #fuss-adresse { color: var(--leise); font-size: 14.5px; margin-top: 4px; line-height: 1.9; }
 #fuss-adresse a { display: inline-block; min-height: 44px; line-height: 44px; }
 .fuss-links { display: flex; flex-wrap: wrap; gap: 0 18px; align-content: start; }
-.fuss-links a { min-height: 44px; display: inline-flex; align-items: center; font-size: 14.5px; color: var(--leise); }
+.fuss-links a { min-height: 44px; min-width: 44px; justify-content: center; display: inline-flex; align-items: center; font-size: 14.5px; color: var(--leise); }
 .fuss-klein { margin-top: 18px; font-size: 12.5px; color: var(--leise); max-width: 760px; }
 
 /* ---------- Korb-Leiste unten ---------- */
@@ -420,11 +420,12 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .zurueck { border: 0; background: none; min-height: 44px; padding: 0; color: var(--leise); font-weight: 600; }
 
 /* Kasse */
-fieldset { border: 0; padding: 0; margin: 18px 0 0; }
+/* min-width: 0 – sonst wird ein Fieldset nie schmaler als seine längste Auswahl-Option (Kasse ragte am Handy 34 px raus) */
+fieldset { border: 0; padding: 0; margin: 18px 0 0; min-width: 0; }
 legend { font-weight: 650; font-size: 16px; margin-bottom: 6px; padding: 0; }
 .feld { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; font-size: 14px; font-weight: 550; }
 .feld small { font-weight: 400; color: var(--leise); }
-.feld input, .feld select { min-height: 48px; padding: 0 14px; border: 1px solid var(--linie); border-radius: var(--rund-klein); background: var(--flaeche); font-size: 16px; font-weight: 400; }
+.feld input, .feld select { width: 100%; max-width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--linie); border-radius: var(--rund-klein); background: var(--flaeche); font-size: 16px; font-weight: 400; }
 .feld.fehlt input { border-color: var(--fehler); box-shadow: 0 0 0 1px var(--fehler); }
 .feld[hidden] { display: none; }
 .feld-reihe { display: grid; grid-template-columns: 110px 1fr; gap: 10px; }
