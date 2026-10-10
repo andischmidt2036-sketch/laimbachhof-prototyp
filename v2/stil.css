@@ -165,6 +165,16 @@ button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-c
 .pin.gewaehlt span { background: var(--akzent); color: #fff; }
 .pin.gewaehlt span::before { background: #fff; }
 .pins-aus .pin { display: none; }
+/* Handy: Etiketten würden sich überdecken und das Schwein verstecken.
+   Darum nur leuchtende Punkte (Tippfläche bleibt 44 px), der Name erscheint am gewählten Punkt. */
+@media (max-width: 699px) {
+  .pin span { font-size: 0; gap: 0; padding: 0; width: 16px; height: 16px; justify-content: center; background: rgba(255, 253, 249, .95); box-shadow: 0 0 0 5px rgba(255, 253, 249, .18), 0 2px 8px rgba(0,0,0,.3); }
+  .pin span::before { width: 8px; height: 8px; }
+  .pin.weg span { text-decoration: none; opacity: .55; }
+  .pin.gewaehlt { z-index: 2; }
+  .pin.gewaehlt span { font-size: 12px; gap: 6px; padding: 4px 10px 4px 8px; width: auto; height: auto; box-shadow: 0 2px 10px rgba(0,0,0,.35); }
+  .leinwand-rahmen { padding-inline: 0; }
+}
 .legende { display: flex; gap: 16px; justify-content: center; font-size: 12.5px; color: #b9b19f; margin: 6px 0 0; }
 .punkt { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 0; flex: none; }
 .punkt.frei { background: var(--gruen); } .punkt.knapp { background: var(--gelb); } .punkt.weg { background: #b9b2a7; }
