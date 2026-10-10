@@ -55,6 +55,8 @@ function mitUhrzeit(d, hhmm) {
 }
 // „09:00“ → „9“, „09:35“ → „9:35“ (so spricht man Uhrzeiten)
 const uhr = hhmm => { const [h, m] = hhmm.split(':').map(Number); return m ? `${h}:${String(m).padStart(2, '0')}` : String(h); };
+// „09:00“ → „9:00“ – für Fahrpläne, wo Minuten immer dastehen sollen
+const uhrVoll = hhmm => hhmm.replace(/^0/, '');
 const spanne = t => t.von ? `${uhr(t.von)}–${uhr(t.bis)} Uhr` : 'Uhrzeit offen';
 
 // ---------- Termine aus dem Wochenplan ----------
@@ -165,7 +167,7 @@ function zeichneOrte() {
         <p>${hl.platz}, ${hl.plz}</p>
         <a class="knopf knopf-leer knopf-klein" href="${kartenLink(`${hl.platz}, ${hl.plz}`)}" target="_blank" rel="noopener">Route in Karten öffnen</a>
         <p class="ort-mehr">Außer unserem Schwarzerle: ${HOFLADEN_SORTIMENT.join(', ')}.</p>
-        <p class="offen" data-offen="sortiment"></p>
+        <p class="platzhalter" data-offen="sortiment"></p>
       </div>
     </article>
 
@@ -180,14 +182,14 @@ function zeichneOrte() {
             ${nbg.filter(e => e.tag === tag).map(e => {
               const istMarkiert = markiert && markiert.platz === e.platz && markiert.tag === e.tag;
               return `<li class="halt${istMarkiert ? ' markiert' : ''}">
-                <span class="halt-zeit">${uhr(e.von)}–${uhr(e.bis)}</span>
-                <span class="halt-ort"><b>${e.platz}</b>${e.zusatz ? ` (${e.zusatz})` : ''}<br>${e.ort}${istMarkiert ? ` <em class="marke">${marke}</em>` : ''}</span>
+                <span class="halt-zeit">${uhrVoll(e.von)}–${uhrVoll(e.bis)} Uhr</span>
+                <span class="halt-ort"><b>${e.platz}</b>${e.zusatz ? ` (${e.zusatz})` : ''}<br>${e.ort}${istMarkiert ? ` <em class="halt-marke">${marke}</em>` : ''}</span>
                 <a class="karte-knopf" href="${kartenLink(`${e.platz}, ${e.plz}`)}" target="_blank" rel="noopener" aria-label="Karte: ${e.platz}, ${e.ort}">Karte</a>
               </li>`;
             }).join('')}
           </ol>`).join('')}
-        <p class="offen" data-offen="wagenTage"></p>
-        <p class="offen" data-offen="wagenSortiment"></p>
+        <p class="platzhalter" data-offen="wagenTage"></p>
+        <p class="platzhalter" data-offen="wagenSortiment"></p>
       </div>
     </article>
 
@@ -197,11 +199,11 @@ function zeichneOrte() {
         <p class="ort-zeit">Samstag, alle 14 Tage – direkt an die Haustür</p>
         <p>Immer in ungeraden Kalenderwochen. Die nächsten Samstage:
           <b>${scheinfeldTermine.map(t => kurzDatum(t.datum) + (gleicherTag(t.datum, HEUTE) ? ' (heute)' : '')).join(' · ')}</b></p>
-        <p class="offen" data-offen="scheinfeldZeit"></p>
+        <p class="platzhalter" data-offen="scheinfeldZeit"></p>
       </div>
     </article>
 
-    <article class="ort ort-schmal">
+    <article class="ort ort-schmal" id="ort-auch">
       <div class="ort-text">
         <h3>Außerdem erhältlich</h3>
         <ul class="auch-bei">${AUCH_BEI.map(a => `<li><b>${a.name}</b>, ${a.ort} – ${a.was}</li>`).join('')}</ul>
@@ -211,7 +213,7 @@ function zeichneOrte() {
           <a class="knopf knopf-leer knopf-klein" href="tel:${HOF.telefonLink}">${HOF.telefon}</a>
           <a class="knopf knopf-leer knopf-klein" href="mailto:${HOF.mail}">${HOF.mail}</a>
         </p>
-        <p class="offen" data-offen="ausnahmen"></p>
+        <p class="platzhalter" data-offen="ausnahmen"></p>
       </div>
     </article>`;
 }
@@ -242,7 +244,7 @@ function zeichneAblauf() {
     <li><span class="schritt">1</span><div><b>Reservieren</b><span>bis ${tagDatum(RESERVIEREN_BIS)} – solange etwas frei ist</span></div></li>
     <li><span class="schritt">2</span><div><b>Schlachtung</b><span>${tagDatum(SCHLACHTUNG)} in der hofnahen Metzgerei</span></div></li>
     <li><span class="schritt">3</span><div><b>Abholen und bezahlen</b><span>${tagDatum(ABHOLUNG)} im Hofladen oder am Verkaufswagen – bezahlt wird dort, nach genauem Gewicht</span></div></li>
-    <li class="ablauf-offen"><p class="offen" data-offen="schlachtung"></p><p class="offen" data-offen="zahlungAbholung"></p></li>`;
+    <li class="ablauf-offen"><p class="platzhalter" data-offen="schlachtung"></p><p class="platzhalter" data-offen="zahlungAbholung"></p></li>`;
 }
 
 function zeichneTier() {
@@ -251,9 +253,11 @@ function zeichneTier() {
   const prozent = Math.round(vergeben / gesamt * 100);
   $('#tier').innerHTML = `
     <img class="tier-bild" src="../bilder/gras.jpg" alt="Schwarzes Cornwallschwein liegt im hohen Gras" width="800" height="600" loading="lazy">
-    <div class="tier-text">
+    <div class="tier-kopf">
       <h3>Schwein Nr. ${SCHWEIN.nr}</h3>
       <p class="tier-meta">${SCHWEIN.rasse} · geboren ${SCHWEIN.geboren} · ${SCHWEIN.weide}</p>
+    </div>
+    <div class="tier-rest">
       <div class="balken-kopf"><span><b>${prozent} %</b> reserviert</span><span>noch ${kg(rund2(gesamt - vergeben))} frei</span></div>
       <div class="balken" role="progressbar" aria-valuenow="${prozent}" aria-valuemin="0" aria-valuemax="100" aria-label="Anteil reserviert"><i style="width:${prozent}%"></i></div>
       <p class="tier-fuss">Nr. ${SCHWEIN.nr - 1} ist vergeben. Nr. ${SCHWEIN.nr + 1} kann man ab ${tagDatum(NAECHSTES_AB)} reservieren.</p>
@@ -394,7 +398,7 @@ function zeichneVersandregel() {
     <div><b>Versand jeden Montag</b><span>nächster Versandtag: ${tagDatum(VERSANDTAG)}</span></div>
     <div><b>Versandkosten</b><span>ab ${euro(VERSAND.freiAb)} Dauerware frei, sonst ${euro(VERSAND.kosten)} je Paket. Geschenkpakete: Versand inklusive.</span></div>
     <div><b>Bezahlung</b><span>auf Rechnung nach Erhalt der Ware</span></div>
-    <p class="offen" data-offen="bestellschluss"></p>`;
+    <p class="platzhalter" data-offen="bestellschluss"></p>`;
 }
 
 function zeichnePakete() {
@@ -564,7 +568,7 @@ function zeigeKorb() {
     ${!korb.length ? `<p class="leer">Noch leer.</p>
       <p class="leer-wege"><a class="knopf knopf-voll" href="#schwein" data-korb-zu>Schwein reservieren</a>
       <a class="knopf knopf-leer" href="#versand" data-korb-zu>Zum Versandshop</a></p>` : `
-    ${s.abholen.length ? `<section class="weg weg-abholen">
+    ${s.abholen.length ? `<section class="korb-weg korb-weg-abholen">
       <h3>Zum Abholen <span>${tagDatum(ABHOLUNG)}</span></h3>
       <p class="weg-satz">Im Hofladen oder am Verkaufswagen – den Termin wählst du an der Kasse. Bezahlt wird bei Abholung nach genauem Gewicht.</p>
       <ul>${s.abholen.map(postenZeile).join('')}</ul></section>` : ''}
@@ -574,7 +578,7 @@ function zeigeKorb() {
         <button type="button" data-mitnehmen="ja" aria-pressed="${dauerMitnehmen}">Mitnehmen</button>
         <button type="button" data-mitnehmen="nein" aria-pressed="${!dauerMitnehmen}">Per Post</button>
       </div></div>` : ''}
-    ${s.post.length ? `<section class="weg weg-post">
+    ${s.post.length ? `<section class="korb-weg korb-weg-post">
       <h3>Per Post <span>Versand ${tagDatum(VERSANDTAG)}</span></h3>
       <ul>${s.post.map(postenZeile).join('')}</ul>
       ${s.dauerPost > 0 ? `<p class="weg-satz">Versand: ${s.versand ? `${euro(s.versand)} – ab ${euro(VERSAND.freiAb)} Dauerware frei (es fehlen ${euro(fehlt)})` : 'frei'}</p>` : ''}
@@ -624,7 +628,7 @@ function zeigeKasse(fehler = '') {
         <label class="haken"><input type="checkbox" name="geschenk"><span>Als Geschenk an eine andere Person schicken</span></label>
         <label class="feld" data-nur="geschenk" hidden>Name der beschenkten Person<input name="empfaenger" autocomplete="off"></label>
         <p class="klein" data-nur="geschenk" hidden>Die Rechnung schicken wir dir per E-Mail, ins Paket kommen keine Preise.</p>
-        <p class="offen" data-nur="geschenk" data-offen="geschenkRechnung" hidden></p>
+        <p class="platzhalter" data-nur="geschenk" data-offen="geschenkRechnung" hidden></p>
         <label class="feld">Straße und Hausnummer<input name="strasse" autocomplete="street-address" required></label>
         <div class="feld-reihe">
           <label class="feld">PLZ<input name="plz" inputmode="numeric" autocomplete="postal-code" required></label>
@@ -802,7 +806,7 @@ function zeichneRest() {
   $('#fuss-adresse').innerHTML = `${HOF.inhaber} · ${HOF.strasse}, ${HOF.ort}<br>
     <a href="tel:${HOF.telefonLink}">${HOF.telefon}</a> · <a href="mailto:${HOF.mail}">${HOF.mail}</a> ·
     <a href="${HOF.facebook}" rel="noopener">Neuigkeiten auf Facebook</a>`;
-  $('#restaurants').innerHTML = `<h3>Hier kocht man mit unserem Fleisch</h3><p>${RESTAURANTS.join(' · ')}</p><p class="offen" data-offen="restaurants"></p>`;
+  $('#restaurants').innerHTML = `<h3>Hier kocht man mit unserem Fleisch</h3><p>${RESTAURANTS.join(' · ')}</p><p class="platzhalter" data-offen="restaurants"></p>`;
 }
 function zeichneZeiten() { zeichneHeute(); zeichneOrte(); zeichneOffen($('#orte')); }
 

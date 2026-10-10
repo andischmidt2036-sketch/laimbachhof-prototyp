@@ -68,9 +68,9 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .zu-knopf { width: 44px; height: 44px; flex: none; border: 0; border-radius: 50%; background: var(--sand); font-size: 22px; line-height: 1; display: grid; place-items: center; }
 
 /* Platzhalter: was nur der Hof beantworten kann – sichtbar, aber nicht laut */
-.offen { margin-top: 12px; padding: 8px 12px; border: 1px dashed #c4b48f; border-radius: 10px; background: #fbf7ec; font-size: 13px; line-height: 1.45; color: #5c513a; }
-.offen b { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #8a6a1e; margin-right: 4px; }
-.offen:empty { display: none; }
+.platzhalter { margin-top: 12px; padding: 8px 12px; border: 1px dashed #c4b48f; border-radius: 10px; background: #fbf7ec; font-size: 13px; line-height: 1.45; color: #5c513a; }
+.platzhalter b { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #8a6a1e; margin-right: 4px; }
+.platzhalter:empty { display: none; }
 
 .prototyp-band { background: var(--tinte); color: #e8e3d8; text-align: center; font-size: 12.5px; padding: 6px var(--rand); }
 
@@ -160,22 +160,25 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .ablauf div { display: flex; flex-direction: column; }
 .ablauf div span { color: var(--leise); font-size: 15px; }
 .ablauf-offen { display: block !important; }
-.ablauf-offen .offen { margin-top: 6px; }
+.ablauf-offen .platzhalter { margin-top: 6px; }
 @media (min-width: 900px) {
   .ablauf { grid-template-columns: repeat(3, 1fr); gap: 24px; }
   .ablauf-offen { grid-column: 1 / -1; display: grid !important; grid-template-columns: 1fr 1fr; gap: 12px; }
 }
 
-.tier { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: start; background: var(--flaeche); border-radius: var(--rund); padding: 14px; box-shadow: var(--schatten); }
-.tier-bild { width: 96px; height: 96px; object-fit: cover; border-radius: var(--rund-klein); }
+/* Handy: Foto + Name nebeneinander, Balken darunter über die volle Breite; Laptop: Foto links über beide Zeilen */
+.tier { display: grid; grid-template-columns: 72px 1fr; grid-template-areas: "bild kopf" "rest rest"; gap: 12px 14px; align-items: center; background: var(--flaeche); border-radius: var(--rund); padding: 14px; box-shadow: var(--schatten); }
+.tier-bild { grid-area: bild; width: 72px; height: 72px; object-fit: cover; border-radius: var(--rund-klein); }
+.tier-kopf { grid-area: kopf; }
+.tier-rest { grid-area: rest; }
 .tier h3 { font-size: 19px; }
 .tier-meta { font-size: 13.5px; color: var(--leise); margin-top: 2px; }
-.balken-kopf { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; font-size: 14px; }
+.balken-kopf { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; }
 .balken { height: 6px; border-radius: 3px; background: var(--sand); margin-top: 6px; overflow: hidden; }
 .balken i { display: block; height: 100%; background: var(--tinte); border-radius: 3px; }
 .tier-fuss { margin-top: 8px; font-size: 13.5px; color: var(--leise); }
 .tier .beispiel { margin-top: 4px; }
-@media (min-width: 900px) { .tier { grid-template-columns: 160px 1fr; padding: 16px; gap: 24px; } .tier-bild { width: 160px; height: 120px; } }
+@media (min-width: 900px) { .tier { grid-template-columns: 180px 1fr; grid-template-areas: "bild kopf" "bild rest"; padding: 16px; gap: 4px 24px; align-items: start; } .tier-bild { width: 180px; height: 135px; } .tier-kopf { padding-top: 4px; } }
 
 .umschalter { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 28px 0 18px; background: var(--sand); border-radius: 999px; max-width: 520px; }
 .umschalter button { min-height: 44px; border: 0; border-radius: 999px; background: transparent; font-weight: 600; font-size: 15px; color: var(--leise); }
@@ -269,8 +272,8 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .versandregel { display: grid; gap: 10px; background: var(--grund); border-radius: var(--rund); padding: 16px 18px; }
 .versandregel div { display: flex; flex-direction: column; }
 .versandregel span { color: var(--leise); font-size: 14.5px; }
-.versandregel .offen { margin-top: 2px; }
-@media (min-width: 900px) { .versandregel { grid-template-columns: repeat(3, 1fr); gap: 24px; } .versandregel .offen { grid-column: 1 / -1; } }
+.versandregel .platzhalter { margin-top: 2px; }
+@media (min-width: 900px) { .versandregel { grid-template-columns: repeat(3, 1fr); gap: 24px; } .versandregel .platzhalter { grid-column: 1 / -1; } }
 
 .pakete { display: grid; gap: 14px; }
 @media (min-width: 700px) { .pakete { grid-template-columns: 1fr 1fr; } }
@@ -286,9 +289,22 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .produkte { display: grid; gap: 14px; }
 @media (min-width: 640px) { .produkte { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1000px) { .produkte { grid-template-columns: repeat(3, 1fr); } }
-.produkt { background: var(--grund); border-radius: var(--rund); overflow: hidden; display: flex; flex-direction: column; }
-.produkt img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
-.produkt-text { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+/* Handy: kleines Foto neben dem Namen, damit fünf Produkte nicht drei Bildschirme lang werden */
+.produkt { background: var(--grund); border-radius: var(--rund); overflow: hidden; display: grid; grid-template-columns: 96px 1fr; gap: 0 14px; padding: 14px; }
+.produkt img { width: 96px; height: 96px; object-fit: cover; border-radius: var(--rund-klein); }
+.produkt-text { display: contents; }
+.produkt-text > h4, .produkt-text > .klein { grid-column: 2; }
+.produkt-text > h4 { align-self: end; }
+.produkt-text > .klein { grid-row: 2; align-self: start; margin-top: 4px; }
+.produkt img { grid-row: 1 / span 2; }
+.produkt-text > :not(h4):not(.klein) { grid-column: 1 / -1; margin-top: 10px; }
+@media (min-width: 640px) {
+  .produkt { display: flex; flex-direction: column; padding: 0; }
+  .produkt img { width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 0; }
+  .produkt-text { display: flex; flex-direction: column; gap: 8px; flex: 1; padding: 16px; }
+  .produkt-text > :not(h4):not(.klein) { margin-top: 0; }
+  .produkt-text > h4, .produkt-text > .klein { align-self: auto; margin-top: 0; }
+}
 .produkt h4 { font-size: 18px; }
 .produkt .knopf { margin-top: auto; }
 .varianten { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -301,7 +317,11 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 
 /* ---------- Wo & wann ---------- */
 .orte { display: grid; gap: 16px; }
-@media (min-width: 900px) { .orte { grid-template-columns: 1fr 1fr; align-items: start; } }
+/* Laptop: links Hofladen, Scheinfeld, Kontakt untereinander – rechts die lange Stellplatzliste */
+@media (min-width: 900px) {
+  .orte { grid-template-columns: 1fr 1fr; grid-template-areas: "hof nbg" "schein nbg" "auch nbg"; grid-template-rows: auto auto 1fr; align-items: start; }
+  #ort-hofladen { grid-area: hof; } #ort-nuernberg { grid-area: nbg; } #ort-scheinfeld { grid-area: schein; } #ort-auch { grid-area: auch; }
+}
 .ort { background: var(--flaeche); border-radius: var(--rund); overflow: hidden; box-shadow: var(--schatten); }
 .ort-bild { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .ort-text { padding: 18px 18px 20px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
@@ -310,15 +330,19 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .ort-lage { font-size: 14.5px; color: var(--leise); display: flex; align-items: baseline; }
 .ort-lage.offen { color: var(--akzent); font-weight: 600; }
 .ort-mehr { font-size: 14.5px; color: var(--leise); }
-.ort .offen { margin-top: 4px; align-self: stretch; }
+.ort .platzhalter { margin-top: 4px; align-self: stretch; }
 .halt-tag { font-size: 14px; color: var(--leise); font-weight: 600; margin-top: 8px; }
 .halte { list-style: none; margin: 0; padding: 0; align-self: stretch; }
-.halt { display: grid; grid-template-columns: 82px 1fr 64px; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--linie); font-size: 14.5px; }
-.halt-zeit { font-variant-numeric: tabular-nums; font-weight: 600; }
+/* Ein Halt: Uhrzeit oben, Adresse darunter, Kartenknopf rechts – so bricht am Handy nichts um */
+.halt { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "zeit karte" "ort karte"; gap: 0 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--linie); font-size: 14.5px; }
+.halt-zeit { grid-area: zeit; font-variant-numeric: tabular-nums; font-weight: 650; }
+.halt-ort { grid-area: ort; color: var(--leise); }
+.halt-ort b { color: var(--tinte); }
+.halt .karte-knopf { grid-area: karte; }
 .halt-ort b { font-weight: 600; }
 .halt.markiert { background: var(--akzent-hell); border-radius: 10px; border-top-color: transparent; padding-left: 8px; padding-right: 4px; margin: 2px -8px 0 -8px; }
 .halt.markiert + .halt { border-top-color: transparent; }
-.marke { font-style: normal; font-size: 12px; font-weight: 650; color: var(--akzent); white-space: nowrap; }
+.halt-marke { font-style: normal; font-size: 12px; font-weight: 650; color: var(--akzent); white-space: nowrap; }
 .karte-knopf { min-height: 44px; min-width: 56px; display: grid; place-items: center; border: 1px solid var(--linie); border-radius: 999px; background: var(--flaeche); text-decoration: none; font-size: 13.5px; font-weight: 600; }
 .auch-bei { margin: 0; padding-left: 18px; font-size: 14.5px; color: var(--leise); }
 .auch-bei b { color: var(--tinte); }
@@ -336,10 +360,10 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .kurz-fakten li { padding-left: 18px; position: relative; color: var(--leise); }
 .kurz-fakten li::before { content: ""; position: absolute; left: 0; top: .62em; width: 7px; height: 7px; border-radius: 50%; background: var(--akzent); }
 .kurz-fakten b { color: var(--tinte); }
-#hof > .offen { max-width: 760px; }
+#hof > .platzhalter { max-width: 760px; }
 .restaurants { margin-top: 32px; max-width: 760px; }
 .restaurants h3 { font-size: 18px; margin-bottom: 6px; }
-.restaurants p:not(.offen) { color: var(--leise); }
+.restaurants p:not(.platzhalter) { color: var(--leise); }
 
 /* ---------- Fuß ---------- */
 .fuss { padding: 40px max(var(--rand), calc((100% - var(--breite)) / 2)) 48px; border-top: 1px solid var(--linie); }
@@ -374,11 +398,11 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .blatt h2 { font-size: 24px; }
 .leer { color: var(--leise); margin: 8px 0 16px; }
 .leer-wege { display: grid; gap: 10px; }
-.weg { margin-top: 14px; padding: 14px 16px; border-radius: var(--rund-klein); background: var(--grund); }
-.weg h3 { font-size: 16px; display: flex; justify-content: space-between; gap: 8px; }
-.weg h3 span { font-weight: 600; color: var(--akzent); }
+.korb-weg { margin-top: 14px; padding: 14px 16px; border-radius: var(--rund-klein); background: var(--grund); }
+.korb-weg h3 { font-size: 16px; display: flex; justify-content: space-between; gap: 8px; }
+.korb-weg h3 span { font-weight: 600; color: var(--akzent); }
 .weg-satz { font-size: 13.5px; color: var(--leise); margin-top: 4px; }
-.weg ul { list-style: none; margin: 8px 0 0; padding: 0; }
+.korb-weg ul { list-style: none; margin: 8px 0 0; padding: 0; }
 .posten { display: grid; grid-template-columns: 1fr auto 44px; gap: 8px; align-items: center; padding: 6px 0; border-top: 1px solid var(--linie); }
 .posten:first-child { border-top: 0; }
 .posten > span:first-child { display: flex; flex-direction: column; }
