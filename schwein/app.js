@@ -228,7 +228,8 @@ function zeichneBuehne() {
     const tt = teil(p.dataset.teil);
     const st = status(tt);
     p.className = `pin ${anzeige(tt)}${tt.id === gewaehlt ? ' aktiv' : ''}`;
-    p.setAttribute('aria-label', `${tt.name}, ${st === 'weg' ? 'vergeben' : `${euro(tt.preis)} je kg, ${vorratText(tt)}`}`);
+    const an = anzeige(tt);
+    p.setAttribute('aria-label', `${tt.name}, ${an === 'meins' ? 'Rest in deinem Paket' : an === 'weg' ? 'vergeben' : `${euro(tt.preis)} je kg, ${vorratText(tt)}`}`);
     p.setAttribute('aria-pressed', String(tt.id === gewaehlt));
   });
   // Kleine Marken am Tier: nur für knappe und vergebene Stücke, damit es ruhig bleibt
