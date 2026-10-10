@@ -500,7 +500,7 @@ function korbGeaendert() {
   const n = korb.length;
   $('#korb-zahl').hidden = n === 0;
   $('#korb-zahl').textContent = n;
-  $('#korb-knopf').setAttribute('aria-label', n ? `Korb öffnen, ${n} ${n === 1 ? 'Posten' : 'Posten'}` : 'Korb öffnen, leer');
+  $('#korb-knopf').setAttribute('aria-label', n ? `Korb öffnen, ${n} Posten` : 'Korb öffnen, leer');
   zeichneSchwein();
   zeichneAnteile();
   korbLeiste();
@@ -655,6 +655,9 @@ function zeigeKasse(fehler = '') {
         ${abholen ? 'Frischfleisch ist schnell verderblich, dafür gibt es kein Widerrufsrecht. ' : ''}${post ? 'Dauerware und Geschenkpakete kannst du 14 Tage lang widerrufen.' : ''}</p>
     </form>`;
   zeichneOffen($('#korb'));
+  // Fällt der Hofladen-Termin aus (Feiertag in AUSNAHMEN), ist sonst keine Abholung vorgewählt
+  const ersteWahl = $('#kasse input[name=abholung]');
+  if (ersteWahl && !$('#kasse input[name=abholung]:checked')) ersteWahl.checked = true;
 }
 
 function zeigeFertig(f) {
