@@ -132,6 +132,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @keyframes welle { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(4.2); opacity: 0; } }
 .hat-wahl .pin::after { display: none; }
 
+/* Marken unter dem Punkt: „vergeben“ / „noch 1,2 kg“ – klein, nur wo es etwas zu sagen gibt */
+.marken { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.marke { position: absolute; transform: translate(-50%, 11px); font-size: 11px; font-weight: 600; letter-spacing: .01em; line-height: 1;
+  padding: 4px 7px; border-radius: 999px; white-space: nowrap; transition: opacity .25s; }
+.marke:empty { display: none; }
+.marke.weg { color: rgba(255, 247, 238, .62); background: rgba(12, 11, 10, .42); font-weight: 550; }
+.marke.knapp { color: #2a1a06; background: #f3b45c; }
+.hat-wahl .marke { opacity: 0; }
+
 /* Etikett: Name des Stücks über dem Punkt */
 .etikett {
   position: absolute; z-index: 3; pointer-events: none; white-space: nowrap;
@@ -168,7 +177,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .posten:active { transform: scale(.98); }
 .posten-name { font-size: 15px; font-weight: 600; letter-spacing: -.01em; line-height: 1.25; }
 .posten-zeile { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--leise); }
-.posten-zeile .trenner { opacity: .5; }
+.posten-preis { font-size: 14px; font-weight: 550; }
+.posten-preis small { font-weight: 450; color: var(--leise); }
 .posten.knapp .posten-rest { color: #8f5a12; font-weight: 550; }
 .posten.weg { background: transparent; box-shadow: 0 0 0 1px var(--linie); }
 .posten.weg .posten-name { color: var(--leise); }
@@ -185,8 +195,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .blatt.offen { transform: none; }
 .blatt-griff { width: 38px; height: 5px; border-radius: 3px; background: rgba(23, 22, 20, .16); margin: 0 auto 10px; }
-.schleier { position: fixed; inset: 0; z-index: 40; background: rgba(15, 14, 12, .1); opacity: 0; transition: opacity .35s; }
-.schleier.an { opacity: 1; }
 
 .blatt-kopf { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .blatt-vorzeile { font-size: 12.5px; font-weight: 550; color: var(--leise); letter-spacing: .01em; }
@@ -324,7 +332,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .posten:hover { background: rgba(23, 22, 20, .04); }
   .posten-name { grid-area: name; }
   .posten-zeile { grid-area: zeile; }
-  .posten-preis-rechts { grid-area: preis; font-size: 14.5px; font-weight: 600; }
+  .posten-preis { grid-area: preis; font-size: 14.5px; font-weight: 600; }
   .posten-paket { grid-area: paket; margin: 0; text-align: right; }
   .posten.aktiv { background: rgba(244, 181, 124, .16); box-shadow: none; }
   .posten.weg { box-shadow: none; }
@@ -335,7 +343,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .blatt.offen { transform: none; opacity: 1; }
   .hat-paket .blatt { padding-bottom: 100px; }
   .blatt-griff { display: none; }
-  .schleier { display: none; }
   .blatt-kopf h2 { font-size: 30px; }
   .blatt .zu { display: none; }
   .zurueck { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 550; color: var(--leise); margin: -4px 0 10px -4px; padding: 6px 4px; }
@@ -349,8 +356,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .fuss { padding: 0 var(--abstand) 24px; text-align: left; max-width: 1480px; margin: 0 auto; }
 }
 /* Am Laptop nur „Alle Stücke“-Rücksprung, am Handy schließt das Blatt mit × */
-@media (max-width: 999px) { .zurueck, .nur-laptop { display: none; } }
-@media (min-width: 1000px) { .nur-handy { display: none; } }
+@media (max-width: 999px) { .zurueck { display: none; } }
 
 /* Großer, hoher Bildschirm: alles auf eine Bildschirmseite */
 @media (min-width: 1000px) and (min-height: 760px) {

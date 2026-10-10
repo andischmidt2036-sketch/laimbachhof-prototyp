@@ -52,7 +52,7 @@
     <ul class="liste" id="liste" aria-label="Teilstücke von Schwein Nr. 15"></ul>
 
     <!-- Blatt: Teilstück im Detail oder das Paket. Handy: Bottom-Sheet. Laptop: liegt über der Liste. -->
-    <div class="blatt" id="blatt" role="dialog" aria-modal="false" aria-labelledby="blatt-titel" hidden>
+    <div class="blatt" id="blatt" role="dialog" aria-modal="false" aria-labelledby="blatt-titel" tabindex="-1" hidden>
       <div class="blatt-griff" aria-hidden="true"></div>
       <div class="blatt-inhalt" id="blatt-inhalt"></div>
     </div>
@@ -73,7 +73,6 @@
   <svg class="paket-pfeil" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
 </button>
 
-<div class="schleier" id="schleier" hidden></div>
 <div class="meldung" id="meldung" role="status" aria-live="polite"></div>
 
 <script src="bilder/schwein-bild.js"></script>

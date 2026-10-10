@@ -165,6 +165,11 @@ function baueBuehne() {
         </radialGradient>
         <filter id="weich" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter>
         <filter id="weich-innen" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="5"/></filter>
+        <!-- Schnittlinien nur im Inneren: Maske = Umriss des Tiers, ein paar Punkte nach innen geschrumpft -->
+        <filter id="schrumpf"><feMorphology operator="erode" radius="7"/></filter>
+        <mask id="innen" maskUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}">
+          <g filter="url(#schrumpf)" fill="#fff" stroke="#fff" stroke-width="3">${mitZone.map(t => `<polygon points="${zonen[t.id]}"/>`).join('')}</g>
+        </mask>
         <filter id="schatten" x="-30%" y="-30%" width="160%" height="170%">
           <feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#000" flood-opacity=".7"/>
         </filter>
@@ -181,7 +186,7 @@ function baueBuehne() {
       <image class="tier" href="${BILD.datei}" width="${w}" height="${h}"/>
       <g class="zonen">${mitZone.map(t =>
         `<polygon class="zone" data-teil="${t.id}" points="${zonen[t.id]}"/>`).join('')}</g>
-      <g class="schnitte">${mitZone.map(t => `<polygon points="${zonen[t.id]}"/>`).join('')}</g>
+      <g class="schnitte" mask="url(#innen)">${mitZone.map(t => `<polygon points="${zonen[t.id]}"/>`).join('')}</g>
       <!-- Das gewählte Stück hebt sich aus dem Tier heraus: Bildausschnitt + warmes Licht + Kante, mit Schatten -->
       <g class="heraus" id="heraus" filter="url(#schatten)">
         <g class="heraus-innen">
@@ -196,7 +201,13 @@ function baueBuehne() {
       const [x, y] = pins[t.id];
       return `<button type="button" class="pin" data-teil="${t.id}" style="left:${x / w * 100}%;top:${y / h * 100}%"></button>`;
     }).join('')}</div>
+    <div class="marken" aria-hidden="true">${mitZone.map(t => {
+      const [x, y] = pins[t.id];
+      return `<span class="marke" data-marke="${t.id}" style="left:${x / w * 100}%;top:${y / h * 100}%"></span>`;
+    }).join('')}</div>
     <div class="etikett" id="etikett" aria-hidden="true"></div>`;
+  // Hinweis passend zum Gerät
+  $('#hinweis').textContent = window.matchMedia('(hover: hover) and (pointer: fine)').matches ? 'Klick auf ein Stück' : 'Tippe auf ein Stück';
 }
 
 // Zustand der Bühne neu setzen (Klassen, Leuchten, Etikett) – das Gerüst bleibt stehen
@@ -216,6 +227,13 @@ function zeichneBuehne() {
     p.className = `pin ${st}${tt.id === gewaehlt ? ' aktiv' : ''}`;
     p.setAttribute('aria-label', `${tt.name}, ${st === 'weg' ? 'vergeben' : `${euro(tt.preis)} je kg, ${vorratText(tt)}`}`);
     p.setAttribute('aria-pressed', String(tt.id === gewaehlt));
+  });
+  // Kleine Marken am Tier: nur für knappe und vergebene Stücke, damit es ruhig bleibt
+  lw.querySelectorAll('.marke').forEach(m => {
+    const tt = teil(m.dataset.marke);
+    const st = status(tt);
+    m.className = `marke ${st}`;
+    m.textContent = st === 'weg' ? 'vergeben' : st === 'knapp' ? (tt.stueck ? `noch ${mengeText(tt, rest(tt)).gross}` : vorratText(tt)) : '';
   });
   // Herausheben: dieselbe Form wie die Zone – Bildausschnitt, Licht und Kante
   const form = t && BILD.zonen[t.id] ? BILD.zonen[t.id] : '';
@@ -254,9 +272,8 @@ function zeichneListe() {
     return `<li><button type="button" class="posten ${st}${t.id === gewaehlt ? ' aktiv' : ''}" data-teil="${t.id}"
         aria-label="${t.name}, ${st === 'weg' ? 'vergeben' : `${euro(t.preis)} je kg, ${vorratText(t)}`}">
       <span class="posten-name">${t.name}</span>
-      <span class="posten-zeile"><i class="punkt ${st}"></i>${st === 'weg' ? 'vergeben'
-        : `<span class="posten-rest">${vorratText(t)}</span><span class="nur-handy trenner">·</span><span class="nur-handy">${euro(t.preis)}</span>`}</span>
-      ${st === 'weg' ? '' : `<span class="posten-preis-rechts nur-laptop">${euro(t.preis)}<small> /kg</small></span>`}
+      ${st === 'weg' ? '' : `<span class="posten-preis">${euro(t.preis)}<small> /kg</small></span>`}
+      <span class="posten-zeile"><i class="punkt ${st}"></i><span class="posten-rest">${vorratText(t)}</span></span>
       ${drin ? `<span class="posten-paket">${kg(drin)} im Paket</span>` : ''}
     </button></li>`;
   }).join('');
@@ -359,20 +376,19 @@ function zeigeFertig() {
     </div>`);
 }
 
-// Blatt füllen und öffnen. Handy: Bottom-Sheet mit Schleier. Laptop: liegt über der Liste.
+// Blatt füllen und öffnen. Handy: Bottom-Sheet. Laptop: liegt über der Liste.
+// Absichtlich ohne abdunkelnden Schleier: das leuchtende Stück am Schwein soll sichtbar bleiben,
+// und ein Tipp auf ein anderes Stück wechselt direkt.
 function blatt(html) {
   const b = $('#blatt');
   $('#blatt-inhalt').innerHTML = html;
   b.scrollTop = 0;
   if (b.hidden) {
     b.hidden = false;
-    if (!LAPTOP.matches) { $('#schleier').hidden = false; }
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      b.classList.add('offen');
-      $('#schleier').classList.add('an');
-    }));
+    requestAnimationFrame(() => requestAnimationFrame(() => b.classList.add('offen')));
   }
   document.body.classList.add('blatt-offen');
+  b.focus({ preventScroll: true });
   document.body.classList.toggle('paket-offen', ansicht === 'paket' || ansicht === 'fertig');
 }
 function blattZu() {
@@ -380,10 +396,9 @@ function blattZu() {
   ansicht = null;
   gewaehlt = null;
   b.classList.remove('offen');
-  $('#schleier').classList.remove('an');
   document.body.classList.remove('blatt-offen', 'paket-offen');
   setTimeout(() => {
-    if (!b.classList.contains('offen')) { b.hidden = true; $('#schleier').hidden = true; }
+    if (!b.classList.contains('offen')) b.hidden = true;
   }, ruhig() ? 0 : 420);
   alles();
 }
@@ -440,10 +455,14 @@ function alles() {
 
 // ---------- Ereignisse (ein Hörer je Bereich) ----------
 document.addEventListener('click', e => {
-  const ziel = e.target.closest('[data-teil], [data-zu], [data-zurueck], [data-menge], [data-ins-paket], [data-entfernen], [data-reservieren], [data-neu], [data-vormerken], #paketleiste, #schleier');
-  if (!ziel) return;
+  const ziel = e.target.closest('[data-teil], [data-zu], [data-zurueck], [data-menge], [data-ins-paket], [data-entfernen], [data-reservieren], [data-neu], [data-vormerken], #paketleiste');
+  if (!ziel) {
+    // Handy: Tipp neben das offene Blatt schließt es (wie ein Schleier, nur unsichtbar)
+    if (ansicht && !LAPTOP.matches && !e.target.closest('#blatt')) blattZu();
+    return;
+  }
   if (ziel.dataset.teil) { waehle(ziel.dataset.teil); return; }
-  if (ziel.matches('[data-zu], #schleier')) { blattZu(); return; }
+  if (ziel.matches('[data-zu]')) { blattZu(); return; }
   if (ziel.matches('[data-zurueck]')) { blattZu(); return; }
   if (ziel.dataset.menge) {
     const t = teil(gewaehlt);
