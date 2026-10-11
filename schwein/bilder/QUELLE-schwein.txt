@@ -1,0 +1,14 @@
+PLATZHALTER: Dieses Bild wird ersetzt – durch ein Foto vom Hof (Seitenansicht, freigestellt)
+oder ein generiertes Bild. Die Seite muss dafür nicht geändert werden.
+
+Vorlage: „EB1911 Pig - Large black sow.jpg“, Encyclopædia Britannica, 11. Auflage (1911)
+https://commons.wikimedia.org/wiki/File:EB1911_Pig_-_Large_black_sow.jpg
+Lizenz: gemeinfrei (Public domain).
+Bearbeitet: freigestellt (rembg, isnet-general-use), gespiegelt (Kopf links), Druckraster geglättet
+(aus ../v2/bilder/schwein.png), dann für /schwein/ mit werkzeug/platzhalter-aufbereiten.mjs:
+klare Kante statt Nebel, satteres Schwarz, warmes Randlicht oben.
+
+Bild tauschen (aus dem Ordner schwein/, Node + Paket „sharp“ nötig):
+    node werkzeug/schwein-zonen.mjs NEUES-BILD.png [--kopf-rechts]
+Schreibt schwein.webp und schwein-bild.js (Bildgröße + Klickzonen je Teilstück) neu,
+dazu schwein-zonen-kontrolle.jpg zum Ansehen der Zonen (wird nicht ausgeliefert).
