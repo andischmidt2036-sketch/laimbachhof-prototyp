@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f3ee">
+  <title>Laimbachhof · Steigerwälder Schwarzerle (Prototyp v3)</title>
+  <link rel="icon" href="data:,">
+  <link rel="preload" href="schrift/inter.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="stil.css">
+</head>
+<body>
+
+<!-- Aufbau der Seite – jede Zeile beantwortet eine Besucherfrage:
+     Kopf (4 Ziele) → Start (was ist das, ist heute offen?) → Schwein reservieren (Frischfleisch, Abholung)
+     → Versandshop (Dauerware, Geschenke, Post) → Wo & wann (alle Zeiten und Orte) → Der Hof (warum dieses Fleisch)
+     → Fuß (Kontakt, Rechtliches). Korb und Teilstück-Details öffnen sich als Blatt darüber. -->
+
+<a class="sprung" href="#inhalt">Zum Inhalt</a>
+<div class="prototyp-band">Prototyp mit Beispieldaten – hier wird nichts bestellt oder bezahlt.</div>
+
+<header class="kopf" id="kopf">
+  <div class="kopf-zeile">
+    <a class="marke" href="#start" aria-label="Laimbachhof, zum Anfang">
+      <span class="marke-name">Laimbachhof</span>
+      <span class="marke-zusatz">Steigerwälder Schwarzerle</span>
+    </a>
+    <nav class="nav" aria-label="Hauptmenü">
+      <a href="#schwein" data-nav="schwein"><span class="lang">Schwein reservieren</span><span class="kurz">Schwein</span></a>
+      <a href="#versand" data-nav="versand"><span class="lang">Versandshop</span><span class="kurz">Versand</span></a>
+      <a href="#wo-wann" data-nav="wo-wann">Wo &amp; wann</a>
+      <a href="#hof" data-nav="hof">Der Hof</a>
+    </nav>
+    <a class="kopf-status" id="kopf-status" href="#wo-wann"></a>
+    <button class="korb-knopf" id="korb-knopf" type="button" aria-label="Korb öffnen, leer">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 11.1a2 2 0 0 1-2 1.9H8.2a2 2 0 0 1-2-1.9L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      <span class="korb-zahl" id="korb-zahl" hidden>0</span>
+    </button>
+  </div>
+</header>
+
+<main id="inhalt">
+
+  <!-- ===== Start: wer wir sind, zwei Wege, und ob heute offen ist ===== -->
+  <section class="start" id="start">
+    <div class="start-text">
+      <h1>Schwarzerle vom Laimbachhof</h1>
+      <p class="start-satz">Cornwallschweine aus dem südlichen Steigerwald, das ganze Jahr draußen.
+        Frischfleisch reservierst du vom nächsten Schwein und holst es ab. Schinken, Speck und Wurst schicken wir dir per Post.</p>
+      <div class="start-knoepfe">
+        <a class="knopf knopf-voll" href="#schwein">Schwein reservieren</a>
+        <a class="knopf knopf-leer" href="#versand">Zum Versandshop</a>
+      </div>
+    </div>
+    <figure class="start-bild">
+      <img src="../bilder/weide.jpg" alt="Schwarze Cornwallschweine grasen auf der Weide vor der Scheune des Laimbachhofs" width="800" height="600" fetchpriority="high">
+    </figure>
+    <!-- Heute-Karte: wird aus dem Wochenplan (daten.js) und der Uhrzeit in Deutschland berechnet -->
+    <section class="heute" id="heute" aria-labelledby="heute-titel"></section>
+  </section>
+
+  <!-- ===== Schwein reservieren: Frischfleisch, nur Abholung ===== -->
+  <section class="abschnitt" id="schwein" aria-labelledby="schwein-titel">
+    <div class="abschnitt-kopf">
+      <h2 id="schwein-titel">Schwein reservieren</h2>
+      <p class="einleitung">Frischfleisch gibt es nur zum Abholen. Wir verkaufen jedes Schwein ganz – du reservierst vorher dein Stück.</p>
+    </div>
+
+    <!-- Ablauf mit den echten Terminen dieses Schweins -->
+    <ol class="ablauf" id="ablauf"></ol>
+
+    <!-- Steckbrief: welches Tier, wie viel noch frei -->
+    <article class="tier" id="tier"></article>
+
+    <div class="umschalter" role="tablist" aria-label="Wie möchtest du reservieren?">
+      <button type="button" role="tab" id="tab-teile" aria-selected="true" aria-controls="modus-teile">Teilstücke</button>
+      <button type="button" role="tab" id="tab-anteil" aria-selected="false" aria-controls="modus-anteil">Fertiges Paket</button>
+    </div>
+
+    <div class="modus" id="modus-teile" role="tabpanel" aria-labelledby="tab-teile">
+      <div class="werkbank">
+        <div class="werkbank-links">
+          <figure class="leinwand" id="leinwand">
+            <figcaption class="leinwand-kopf"><span>Tippe auf ein Teilstück</span><span id="leinwand-nr"></span></figcaption>
+            <div class="leinwand-bild" id="leinwand-bild"></div>
+            <p class="legende">
+              <span><i class="punkt frei"></i>frei</span>
+              <span><i class="punkt knapp"></i>wird knapp</span>
+              <span><i class="punkt weg"></i>vergeben</span>
+            </p>
+          </figure>
+          <ul class="teile-liste" id="teile-liste" aria-label="Alle Teilstücke"></ul>
+          <details class="aufklapp">
+            <summary>So entsteht der Tagespreis</summary>
+            <p>Wir verkaufen jedes Schwein komplett. Darum richtet sich der Preis eines Teilstücks nach der noch verfügbaren Menge und den Tagen bis zum Schlachttermin. Er bewegt sich in einem festen Rahmen von höchstens 15 % nach oben oder unten, ändert sich höchstens einmal am Tag (um 0 Uhr), ist für alle Kundinnen und Kunden gleich und wird nicht persönlich angepasst. Der Preis, den du beim Bestellen siehst, gilt für deine Bestellung.</p>
+          </details>
+        </div>
+        <!-- Am Laptop daneben, am Handy als Blatt von unten -->
+        <aside class="detail" id="detail" aria-label="Gewähltes Teilstück" aria-live="polite"></aside>
+      </div>
+    </div>
+
+    <div class="modus" id="modus-anteil" role="tabpanel" aria-labelledby="tab-anteil" hidden>
+      <p class="modus-satz">Ein fester Querschnitt durchs ganze Schwein, vakuumiert und beschriftet – fürs Gefrierfach. Kein Aussuchen, dafür alles dabei.</p>
+      <div class="anteile" id="anteile"></div>
+    </div>
+  </section>
+
+  <!-- ===== Versandshop: Dauerware und Geschenke per Post ===== -->
+  <section class="abschnitt abschnitt-hell" id="versand" aria-labelledby="versand-titel">
+    <div class="abschnitt-kopf">
+      <h2 id="versand-titel">Versandshop</h2>
+      <p class="einleitung">Über Buchenholz geräuchert und vakuumiert – das hält und darf deshalb per Post kommen. Auch als Geschenk an eine andere Adresse.</p>
+    </div>
+    <div class="versandregel" id="versandregel"></div>
+
+    <h3 class="gruppe-kopf">Geschenkpakete</h3>
+    <div class="pakete" id="pakete"></div>
+
+    <h3 class="gruppe-kopf">Dauerware nach Gewicht</h3>
+    <div class="produkte" id="produkte"></div>
+  </section>
+
+  <!-- ===== Wo & wann: alle Zeiten und Orte ===== -->
+  <section class="abschnitt" id="wo-wann" aria-labelledby="wo-titel">
+    <div class="abschnitt-kopf">
+      <h2 id="wo-titel">Wo &amp; wann</h2>
+      <p class="einleitung">Im Hofladen, am Verkaufswagen in Nürnberg Süd und in Scheinfeld. Der nächste Termin ist markiert.</p>
+    </div>
+    <div class="orte" id="orte"></div>
+  </section>
+
+  <!-- ===== Der Hof: warum dieses Fleisch – jede Aussage mit Foto ===== -->
+  <section class="abschnitt abschnitt-hell" id="hof" aria-labelledby="hof-titel">
+    <div class="abschnitt-kopf">
+      <h2 id="hof-titel">Der Hof</h2>
+      <p class="einleitung">Der Laimbachhof liegt in Oberlaimbach bei Scheinfeld, im südlichen Steigerwald. Johannes Buchner, Landwirtschaftsmeister, hält hier Cornwallschweine – eine alte Rasse, deren Zucht in Deutschland in den 60er-Jahren aufgegeben wurde.</p>
+    </div>
+    <div class="belege">
+      <figure class="beleg">
+        <img src="../bilder/ankunft.jpg" alt="Vier schwarze Cornwall-Sauen liegen nebeneinander im Stroh" width="800" height="531" loading="lazy">
+        <figcaption><b>Seit 2009 auf dem Hof.</b> Im Februar 2009 kamen Molly, Polly, Lucky und Babe aus Schottland. Von ihnen stammen unsere Schweine ab.</figcaption>
+      </figure>
+      <figure class="beleg">
+        <img src="../bilder/schnee.jpg" alt="Schwarze Schweine im Schnee vor ihrer Strohhütte" width="500" height="375" loading="lazy">
+        <figcaption><b>Das ganze Jahr draußen.</b> Auf Äckern, Wiesen und im Wald, auch im Winter. Die dunkle Haut schützt im Sommer vor Sonnenbrand.</figcaption>
+      </figure>
+      <figure class="beleg">
+        <img src="../bilder/sau-ferkel.jpg" alt="Sau mit Ferkeln auf der Wiese" width="800" height="600" loading="lazy">
+        <figcaption><b>Ferkel auf der Weide.</b> Geboren auf Stroh, bald draußen. Weil die Tiere ohne Stress leben, bleibt der Ringelschwanz dran.</figcaption>
+      </figure>
+    </div>
+    <ul class="kurz-fakten">
+      <li><b>Futter</b> selbst gemischt, vor allem aus eigenem Anbau, gentechnikfrei.</li>
+      <li><b>Schlachtung</b> in der hofnahen Metzgerei. Bis dahin bleiben die Tiere auf der Koppel.</li>
+      <li><b>Fleisch</b> kräftig und gut durchwachsen, mit kernigem Speck.</li>
+    </ul>
+    <p class="platzhalter" data-offen="rasse"></p>
+    <div class="restaurants" id="restaurants"></div>
+  </section>
+
+</main>
+
+<footer class="fuss" id="kontakt">
+  <div class="fuss-raster">
+    <div>
+      <p class="fuss-marke">Laimbachhof</p>
+      <p id="fuss-adresse"></p>
+    </div>
+    <nav class="fuss-links" aria-label="Rechtliches">
+      <a href="#recht" data-recht="impressum">Impressum</a>
+      <a href="#recht" data-recht="datenschutz">Datenschutz</a>
+      <a href="#recht" data-recht="agb">AGB</a>
+      <a href="#recht" data-recht="widerruf">Widerrufsbelehrung</a>
+      <a href="#recht" data-recht="widerrufen">Vertrag widerrufen</a>
+    </nav>
+  </div>
+  <p class="fuss-klein" id="recht">Alle Preise inkl. MwSt. Rechtstexte sind im Prototyp Platzhalter und folgen im echten Shop.
+    Schweinebild: Platzhalter nach Encyclopædia Britannica (1911), gemeinfrei, bearbeitet – wird durch ein Foto vom Hof ersetzt.</p>
+</footer>
+
+<!-- Leiste unten, sobald etwas im Korb liegt -->
+<div class="korb-leiste" id="korb-leiste" hidden>
+  <p id="korb-leiste-text"></p>
+  <button type="button" class="knopf knopf-voll" data-korb-auf>Korb ansehen</button>
+</div>
+
+<!-- Blätter: Teilstück-Detail (nur Handy) und Korb/Kasse -->
+<div class="schleier" id="schleier" hidden></div>
+<section class="blatt" id="korb" role="dialog" aria-modal="true" aria-label="Korb" hidden tabindex="-1"></section>
+<div class="meldung" id="meldung" role="status" aria-live="polite"></div>
+
+<script src="daten.js"></script>
+<script src="bilder/schwein-bild.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

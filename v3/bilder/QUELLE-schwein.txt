@@ -1,0 +1,9 @@
+PLATZHALTER: Dieses Bild (Stich/Foto von 1911) wird ersetzt – durch ein generiertes Bild oder ein echtes Profilfoto vom Hof.
+Tausch: python3 werkzeug/schwein-zonen.py NEU.png [--kopf-rechts]  (Anleitung im Skriptkopf)
+
+Schweinebild (schwein.webp / schwein.png)
+Vorlage: „EB1911 Pig - Large black sow.jpg“, Encyclopædia Britannica, 11. Auflage (1911)
+https://commons.wikimedia.org/wiki/File:EB1911_Pig_-_Large_black_sow.jpg
+Lizenz: gemeinfrei (Public domain). Bearbeitet: freigestellt (rembg, isnet-general-use),
+gespiegelt (Kopf links), Druckraster geglättet, Tonwerte als dunkles Duoton.
+Zonen (schwein-zonen.json): Polygone in Bildpixeln (1400×790), „mitten“ = Schwerpunkt je Zone für Beschriftungen.
